@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Database, Activity, AlertTriangle, CheckCircle, Cpu, HardDrive, Server, Network, TrendingUp, TrendingDown, Minus, RefreshCw } from 'lucide-react';
+import { Database, Activity, AlertTriangle, CheckCircle, Cpu, HardDrive, Server, TrendingUp, TrendingDown, Minus, RefreshCw, Terminal } from 'lucide-react';
 import { cn } from '../utils';
 import { motion } from 'framer-motion';
 import { Chart } from '../components/Chart';
@@ -31,13 +31,16 @@ export const Dashboard: React.FC = () => {
   
   const [statsData, setStatsData] = useState<any>({ trend: [] });
   const [resources, setResources] = useState<any>({});
-  const [nodes, setNodes] = useState<any[]>([]);
   
   const [taskList, setTaskList] = useState<any[]>([]);
   const [taskTotal, setTaskTotal] = useState(0);
   const [taskPage, setTaskPage] = useState(1);
   const [taskLoading, setTaskLoading] = useState(false);
   const taskPageSize = 10;
+  
+  const [logs, setLogs] = useState<{time: string; level: string; message: string}[]>([]);
+  const [logsConnected, setLogsConnected] = useState(false);
+  const logContainerRef = useRef<HTMLDivElement>(null);
   
   const loadTaskList = async () => {
     setTaskLoading(true);
@@ -76,12 +79,35 @@ export const Dashboard: React.FC = () => {
         });
       } else if (message.type === 'tasks_list') {
         loadTaskList();
+      } else if (message.type === 'system_log') {
+        const logData = message.data as { time: string; level: string; message: string };
+        setLogs(prev => {
+          const newLogs = [...prev, logData];
+          if (newLogs.length > 200) {
+            return newLogs.slice(-200);
+          }
+          return newLogs;
+        });
       }
     };
 
     const unsubscribe = sseClient.subscribe(handleSSEMessage);
     return () => unsubscribe();
   }, [taskPage]);
+  
+  useEffect(() => {
+    if (logContainerRef.current) {
+      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+    }
+  }, [logs]);
+  
+  useEffect(() => {
+    setLogsConnected(sseClient.isConnected());
+    const checkConnection = setInterval(() => {
+      setLogsConnected(sseClient.isConnected());
+    }, 5000);
+    return () => clearInterval(checkConnection);
+  }, []);
   
   useEffect(() => {
       const loadData = async () => {
@@ -92,20 +118,6 @@ export const Dashboard: React.FC = () => {
               } else {
                   const resRes = await dashboardApi.getResources();
                   if(resRes.code === 200) setResources(resRes.data);
-                  
-                  const resNodes = await dashboardApi.getNodes();
-                  if(resNodes.code === 200) {
-                      const nodesData = resNodes.data as any;
-                      if (Array.isArray(nodesData)) {
-                          setNodes(nodesData);
-                      } else if (nodesData && Array.isArray(nodesData.records)) {
-                          setNodes(nodesData.records);
-                      } else if (nodesData && Array.isArray(nodesData.list)) {
-                          setNodes(nodesData.list);
-                      } else {
-                          setNodes([]);
-                      }
-                  }
               }
           } catch (e) {
               console.error(e);
@@ -294,140 +306,161 @@ export const Dashboard: React.FC = () => {
             variants={containerVariants}
             initial="hidden"
             animate="show"
-            className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+            className="space-y-6"
         >
-            {/* Left Column: System Resources */}
-            <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6">
-                {/* Resource Monitor */}
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <motion.div variants={itemVariants} className="lg:col-span-2">
+                    <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800">
+                        <h3 className="font-semibold text-slate-800 mb-4 dark:text-white flex items-center">
+                            <Activity size={18} className="mr-2 text-blue-500" /> 
+                            系统资源监控
+                        </h3>
+                        <div className="grid grid-cols-3 gap-4">
+                            <ResourceGauge label="CPU 使用率" value={resources.cpu || 0} icon={<Cpu size={20} />} color="text-blue-500" />
+                            <ResourceGauge label="内存占用" value={resources.memory || 0} icon={<HardDrive size={20} />} color="text-purple-500" />
+                            <ResourceGauge label="磁盘 I/O" value={resources.disk || 0} icon={<Server size={20} />} color="text-green-500" />
+                        </div>
+                    </div>
+                </motion.div>
+
+                <motion.div variants={itemVariants} className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800">
                     <h3 className="font-semibold text-slate-800 mb-4 dark:text-white flex items-center">
-                        <Activity size={18} className="mr-2 text-blue-500" /> 
-                        系统资源监控
+                        <Server size={18} className="mr-2 text-indigo-500" />
+                        系统状态
                     </h3>
-                    <div className="grid grid-cols-3 gap-4">
-                        <ResourceGauge label="CPU 使用率" value={resources.cpu || 0} icon={<Cpu size={20} />} color="text-blue-500" />
-                        <ResourceGauge label="内存占用" value={resources.memory || 0} icon={<HardDrive size={20} />} color="text-purple-500" />
-                        <ResourceGauge label="磁盘 I/O" value={resources.disk || 0} icon={<Server size={20} />} color="text-green-500" />
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg dark:bg-slate-800">
+                            <span className="text-sm text-slate-600 dark:text-slate-300">SSE 连接</span>
+                            <span className={cn(
+                                "flex items-center gap-2 text-xs font-medium",
+                                logsConnected ? "text-green-600" : "text-red-500"
+                            )}>
+                                <span className={cn("w-2 h-2 rounded-full", logsConnected ? "bg-green-500" : "bg-red-500")}></span>
+                                {logsConnected ? '已连接' : '未连接'}
+                            </span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg dark:bg-slate-800">
+                            <span className="text-sm text-slate-600 dark:text-slate-300">日志条数</span>
+                            <span className="text-xs font-mono text-slate-500 dark:text-slate-400">{logs.length} / 200</span>
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
+
+            <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden dark:bg-slate-900 dark:border-slate-800">
+                <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800 dark:border-slate-700">
+                    <h3 className="font-semibold text-slate-800 dark:text-white flex items-center">
+                        <Terminal size={18} className="mr-2 text-green-500" />
+                        实时系统日志
+                    </h3>
+                    <div className="flex items-center gap-2">
+                        <span className={cn(
+                            "flex items-center gap-1.5 text-xs",
+                            logsConnected ? "text-green-500" : "text-red-500"
+                        )}>
+                            <span className={cn("w-1.5 h-1.5 rounded-full animate-pulse", logsConnected ? "bg-green-500" : "bg-red-500")}></span>
+                            {logsConnected ? '实时更新中' : '等待连接...'}
+                        </span>
                     </div>
                 </div>
-
-                {/* Task List */}
-                <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden dark:bg-slate-900 dark:border-slate-800">
-                    <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800 dark:border-slate-700">
-                        <h3 className="font-semibold text-slate-800 dark:text-white">后台任务队列</h3>
-                        <div className="flex items-center gap-3">
-                            <span className="text-xs text-slate-500 dark:text-slate-400">
-                                共 {taskTotal} 条记录
-                            </span>
-                            <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={loadTaskList}
-                                isLoading={taskLoading}
-                                className="text-xs"
-                            >
-                                <RefreshCw size={12} className="mr-1" /> 刷新
-                            </Button>
+                <div 
+                    ref={logContainerRef}
+                    className="bg-slate-900 p-4 h-[400px] overflow-y-auto font-mono text-xs custom-scrollbar"
+                >
+                    {logs.length === 0 ? (
+                        <div className="text-slate-500 text-center py-8">
+                            <Terminal size={24} className="mx-auto mb-2 opacity-50" />
+                            等待日志数据...
                         </div>
-                    </div>
-                    <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-[400px] overflow-y-auto">
-                        {taskLoading ? (
-                            <div className="p-8 text-center text-slate-400">
-                                <RefreshCw size={24} className="animate-spin mx-auto mb-2" />
-                                加载中...
+                    ) : (
+                        logs.map((log, index) => (
+                            <div key={index} className="flex items-start gap-2 mb-1.5 hover:bg-slate-800/50 px-1 py-0.5 rounded">
+                                <span className="text-slate-500 shrink-0">{log.time}</span>
+                                <span className={cn(
+                                    "shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase",
+                                    log.level === 'ERROR' && "bg-red-500/20 text-red-400",
+                                    log.level === 'WARN' && "bg-yellow-500/20 text-yellow-400",
+                                    log.level === 'INFO' && "bg-blue-500/20 text-blue-400",
+                                    log.level === 'DEBUG' && "bg-slate-500/20 text-slate-400",
+                                    !['ERROR', 'WARN', 'INFO', 'DEBUG'].includes(log.level) && "bg-slate-500/20 text-slate-400"
+                                )}>
+                                    {log.level || 'INFO'}
+                                </span>
+                                <span className="text-slate-300 break-all">{log.message}</span>
                             </div>
-                        ) : taskList.length === 0 ? (
-                            <div className="p-8 text-center text-slate-400">暂无任务记录</div>
-                        ) : (
-                            taskList.map((task: any) => (
-                                <div key={task.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors dark:hover:bg-slate-800">
-                                    <div className="flex-1">
-                                        <div className="flex items-center mb-1">
-                                            <h4 className="font-medium text-sm text-slate-900 mr-3 dark:text-slate-200">{task.name}</h4>
-                                            <StatusBadge status={task.status} />
-                                        </div>
-                                        <div className="w-full max-w-xs bg-slate-100 rounded-full h-1.5 mt-2 dark:bg-slate-700">
-                                            <motion.div 
-                                                initial={{ width: 0 }}
-                                                animate={{ width: `${task.progress}%` }}
-                                                transition={{ duration: 0.5 }}
-                                                className={cn("h-1.5 rounded-full", 
-                                                    task.status === 'Completed' ? 'bg-green-500' : 
-                                                    task.status === 'Failed' ? 'bg-red-500' : 'bg-blue-500'
-                                                )}
-                                            ></motion.div>
-                                        </div>
-                                    </div>
-                                    <div className="text-xs text-slate-400 font-mono ml-4 whitespace-nowrap">
-                                        {task.startTime || task.start_time ? new Date(task.startTime || task.start_time).toLocaleString('zh-CN', { 
-                                            year: 'numeric', 
-                                            month: '2-digit', 
-                                            day: '2-digit',
-                                            hour: '2-digit', 
-                                            minute: '2-digit'
-                                        }) : '-'}
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                    {taskTotal > taskPageSize && (
-                        <div className="px-4 py-2 border-t border-slate-100 dark:border-slate-800">
-                            <Pagination 
-                                currentPage={taskPage} 
-                                totalPages={Math.ceil(taskTotal / taskPageSize)} 
-                                onPageChange={setTaskPage} 
-                            />
-                        </div>
+                        ))
                     )}
                 </div>
             </motion.div>
 
-            {/* Right Column: Node Status & Terminal */}
-            <motion.div variants={itemVariants} className="space-y-6">
-                {/* Active Nodes */}
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800">
-                    <h3 className="font-semibold text-slate-800 mb-4 dark:text-white flex items-center">
-                        <Network size={18} className="mr-2 text-indigo-500" />
-                        集群节点状态
-                    </h3>
-                    <div className="space-y-3">
-                        {nodes.map(node => (
-                            <div key={node.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg dark:bg-slate-800">
-                                <div className="flex items-center gap-3">
-                                    <div className={cn("w-2 h-2 rounded-full", node.status === 'active' ? 'bg-green-500' : 'bg-yellow-500')}></div>
-                                    <div>
-                                        <div className="text-xs font-mono font-medium dark:text-slate-200">{node.id}</div>
-                                        <div className="text-[10px] text-slate-400">{node.ip}</div>
+            <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden dark:bg-slate-900 dark:border-slate-800">
+                <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800 dark:border-slate-700">
+                    <h3 className="font-semibold text-slate-800 dark:text-white">后台任务队列</h3>
+                    <div className="flex items-center gap-3">
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
+                            共 {taskTotal} 条记录
+                        </span>
+                        <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={loadTaskList}
+                            isLoading={taskLoading}
+                            className="text-xs"
+                        >
+                            <RefreshCw size={12} className="mr-1" /> 刷新
+                        </Button>
+                    </div>
+                </div>
+                <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-[300px] overflow-y-auto">
+                    {taskLoading ? (
+                        <div className="p-8 text-center text-slate-400">
+                            <RefreshCw size={24} className="animate-spin mx-auto mb-2" />
+                            加载中...
+                        </div>
+                    ) : taskList.length === 0 ? (
+                        <div className="p-8 text-center text-slate-400">暂无任务记录</div>
+                    ) : (
+                        taskList.map((task: any) => (
+                            <div key={task.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors dark:hover:bg-slate-800">
+                                <div className="flex-1">
+                                    <div className="flex items-center mb-1">
+                                        <h4 className="font-medium text-sm text-slate-900 mr-3 dark:text-slate-200">{task.name}</h4>
+                                        <StatusBadge status={task.status} />
+                                    </div>
+                                    <div className="w-full max-w-xs bg-slate-100 rounded-full h-1.5 mt-2 dark:bg-slate-700">
+                                        <motion.div 
+                                            initial={{ width: 0 }}
+                                            animate={{ width: `${task.progress}%` }}
+                                            transition={{ duration: 0.5 }}
+                                            className={cn("h-1.5 rounded-full", 
+                                                task.status === 'Completed' ? 'bg-green-500' : 
+                                                task.status === 'Failed' ? 'bg-red-500' : 'bg-blue-500'
+                                            )}
+                                        ></motion.div>
                                     </div>
                                 </div>
-                                <span className={cn("text-xs font-medium px-2 py-0.5 rounded", 
-                                    parseInt(node.load) > 80 ? "text-red-600 bg-red-50 dark:bg-red-900/20" : "text-slate-600 bg-slate-200 dark:bg-slate-700 dark:text-slate-300"
-                                )}>
-                                    Load: {node.load}
-                                </span>
+                                <div className="text-xs text-slate-400 font-mono ml-4 whitespace-nowrap">
+                                    {task.startTime || task.start_time ? new Date(task.startTime || task.start_time).toLocaleString('zh-CN', { 
+                                        year: 'numeric', 
+                                        month: '2-digit', 
+                                        day: '2-digit',
+                                        hour: '2-digit', 
+                                        minute: '2-digit'
+                                    }) : '-'}
+                                </div>
                             </div>
-                        ))}
-                    </div>
+                        ))
+                    )}
                 </div>
-
-                {/* Console Terminal */}
-                <div className="bg-slate-900 rounded-xl overflow-hidden flex flex-col h-[280px] shadow-lg">
-                    <div className="px-4 py-2 bg-slate-800 border-b border-slate-700 flex items-center gap-2">
-                        <div className="flex gap-1.5">
-                            <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
-                            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
-                            <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-                        </div>
-                        <span className="text-xs text-slate-400 font-mono ml-2">root@vector-admin:~</span>
+                {taskTotal > taskPageSize && (
+                    <div className="px-4 py-2 border-t border-slate-100 dark:border-slate-800">
+                        <Pagination 
+                            currentPage={taskPage} 
+                            totalPages={Math.ceil(taskTotal / taskPageSize)} 
+                            onPageChange={setTaskPage} 
+                        />
                     </div>
-                    <div className="p-4 text-xs font-mono text-slate-300 overflow-y-auto flex-1 custom-scrollbar">
-                        <div className="text-green-400 mb-1">$ systemctl status vector-engine</div>
-                        <div className="mb-1 opacity-80">[INFO] Vector engine running on port 8080</div>
-                        <div className="mb-1 opacity-80">[INFO] Connected to storage cluster (Node A, Node B)</div>
-                        <div className="text-blue-400 mb-1 animate-pulse">_ cursor blinking...</div>
-                    </div>
-                </div>
+                )}
             </motion.div>
         </motion.div>
       )}

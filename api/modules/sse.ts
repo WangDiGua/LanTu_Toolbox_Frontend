@@ -18,8 +18,8 @@ export interface NotificationEvent {
 }
 
 export interface SSEMessage {
-  type: 'task_update' | 'notification' | 'tasks_list' | 'notifications_list' | 'notification_read';
-  data: TaskEvent | NotificationEvent | TaskEvent[] | NotificationEvent[] | { id: string; read: boolean };
+  type: 'task_update' | 'notification' | 'tasks_list' | 'notifications_list' | 'notification_read' | 'system_log';
+  data: TaskEvent | NotificationEvent | TaskEvent[] | NotificationEvent[] | { id: string; read: boolean } | { time: string; level: string; message: string };
 }
 
 type SSEEventHandler = (message: SSEMessage) => void;
@@ -86,6 +86,10 @@ class SSEClient {
     return () => {
       this.handlers = this.handlers.filter(h => h !== handler);
     };
+  }
+
+  isConnected() {
+    return this.eventSource !== null && this.eventSource.readyState === EventSource.OPEN;
   }
 }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Lock, Key, ArrowRight, Cpu, Database, Zap, Layers, Box } from 'lucide-react';
+import { User, Lock, Key, ArrowRight, Database, Zap, Layers } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { APP_CONFIG } from '../config';
 import { useToast } from '../components/Toast';
@@ -172,19 +172,6 @@ export const Login: React.FC = () => {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-        }
-        @keyframes pulse-glow {
-          0%, 100% { opacity: 0.4; }
-          50% { opacity: 0.8; }
-        }
-        @keyframes gradient-shift {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
       `}</style>
       <div 
         style={{ 
@@ -192,202 +179,126 @@ export const Login: React.FC = () => {
           display: 'flex',
           backgroundColor: '#ffffff',
           fontSize: '16px',
-          fontFamily: "'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         }}
       >
         <div 
           className="login-left-panel"
           style={{
             display: 'none',
-            width: '50%',
+            width: '55%',
             position: 'relative',
             overflow: 'hidden',
             background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%)',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '48px',
+            padding: '64px',
           }}
         >
-        <div style={{ position: 'absolute', inset: 0 }}>
-          <div style={{
-            position: 'absolute',
-            top: '-50%',
-            left: '-50%',
-            width: '200%',
-            height: '200%',
-            background: 'radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%), radial-gradient(circle at 70% 70%, rgba(139, 92, 246, 0.1) 0%, transparent 50%)',
-            animation: 'gradient-shift 15s ease infinite',
-            backgroundSize: '200% 200%',
-          }}></div>
-          
-          <div style={{
-            position: 'absolute',
-            top: '10%',
-            right: '10%',
-            width: '300px',
-            height: '300px',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%)',
-            filter: 'blur(40px)',
-            animation: 'pulse-glow 4s ease-in-out infinite',
-          }}></div>
-          
-          <div style={{
-            position: 'absolute',
-            bottom: '20%',
-            left: '5%',
-            width: '200px',
-            height: '200px',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%)',
-            filter: 'blur(30px)',
-            animation: 'pulse-glow 5s ease-in-out infinite 1s',
-          }}></div>
+          <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '70%', height: '70%', background: 'rgba(99, 102, 241, 0.15)', borderRadius: '50%', filter: 'blur(120px)' }}></div>
+          <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '60%', height: '60%', background: 'rgba(59, 130, 246, 0.15)', borderRadius: '50%', filter: 'blur(100px)' }}></div>
 
-          <div style={{
-            position: 'absolute',
-            top: '20%',
-            left: '15%',
-            animation: 'float 6s ease-in-out infinite',
-          }}>
-            <Box size={40} style={{ color: 'rgba(99, 102, 241, 0.3)' }} />
-          </div>
-          
-          <div style={{
-            position: 'absolute',
-            top: '60%',
-            right: '20%',
-            animation: 'float 5s ease-in-out infinite 1s',
-          }}>
-            <Database size={35} style={{ color: 'rgba(139, 92, 246, 0.3)' }} />
-          </div>
-          
-          <div style={{
-            position: 'absolute',
-            bottom: '30%',
-            left: '25%',
-            animation: 'float 7s ease-in-out infinite 2s',
-          }}>
-            <Layers size={30} style={{ color: 'rgba(99, 102, 241, 0.25)' }} />
-          </div>
-          
-          <div style={{
-            position: 'absolute',
-            top: '35%',
-            right: '15%',
-            animation: 'float 4s ease-in-out infinite 0.5s',
-          }}>
-            <Zap size={28} style={{ color: 'rgba(139, 92, 246, 0.25)' }} />
+          <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '600px', color: 'white' }}>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.5 }}
+              style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '64px' }}
+            >
+              <img src="/LOGO.png" alt="Logo" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
+              <span style={{ fontSize: '24px', fontWeight: '700', letterSpacing: '-0.02em' }}>
+                兰途<span style={{ color: '#a5b4fc' }}>工具箱</span>
+              </span>
+            </motion.div>
+
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              style={{
+                fontSize: '56px',
+                fontWeight: '800',
+                lineHeight: '1.1',
+                marginBottom: '32px',
+                letterSpacing: '-0.03em',
+              }}
+            >
+              构建属于未来的<br/>
+              <span style={{
+                background: 'linear-gradient(90deg, #a5b4fc 0%, #67e8f9 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>数字创意生态</span>
+            </motion.h1>
+            
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              style={{
+                fontSize: '18px',
+                color: 'rgba(203, 213, 225, 0.9)',
+                lineHeight: '1.7',
+                marginBottom: '48px',
+                maxWidth: '480px',
+              }}
+            >
+              兰途工具箱为低代码平台提供强大的自定义工具能力，向量管理、数据处理、智能检索，一站式解决方案。
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+            >
+              {[
+                { icon: Database, title: '向量管理', desc: '高效管理海量向量数据，支持多种索引类型', color: 'rgba(99, 102, 241, 0.2)', iconColor: '#a5b4fc' },
+                { icon: Zap, title: '智能检索', desc: '毫秒级响应，精准匹配您需要的信息', color: 'rgba(34, 211, 238, 0.2)', iconColor: '#67e8f9' },
+                { icon: Layers, title: '数据处理', desc: '灵活的数据处理流程，满足各种业务场景', color: 'rgba(167, 139, 250, 0.2)', iconColor: '#c4b5fd' },
+              ].map((item, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 + index * 0.1, duration: 0.4 }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '20px',
+                    padding: '20px 24px',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    backdropFilter: 'blur(12px)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '16px',
+                    marginLeft: index === 1 ? '32px' : '0',
+                    cursor: 'default',
+                    transition: 'transform 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                >
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '50%',
+                    background: item.color,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                    <item.icon size={24} style={{ color: item.iconColor }} />
+                  </div>
+                  <div>
+                    <h4 style={{ fontWeight: '700', fontSize: '16px', marginBottom: '4px' }}>{item.title}</h4>
+                    <p style={{ color: 'rgba(148, 163, 184, 0.9)', fontSize: '14px' }}>{item.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
         </div>
-
-        <div style={{ position: 'relative', zIndex: 10, color: 'white', maxWidth: '480px' }}>
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            style={{
-              width: '72px',
-              height: '72px',
-              borderRadius: '18px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: '32px',
-              overflow: 'hidden',
-            }}
-          >
-            <img src="/LOGO.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-          </motion.div>
-          
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            style={{
-              fontSize: '42px',
-              fontWeight: 'bold',
-              marginBottom: '16px',
-              letterSpacing: '-0.02em',
-              background: 'linear-gradient(135deg, #ffffff 0%, #c7d2fe 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}
-          >
-            兰途工具箱
-          </motion.h1>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
-            style={{
-              display: 'inline-block',
-              padding: '6px 16px',
-              background: 'rgba(99, 102, 241, 0.2)',
-              border: '1px solid rgba(99, 102, 241, 0.3)',
-              borderRadius: '20px',
-              marginBottom: '24px',
-            }}
-          >
-            <span style={{ fontSize: '14px', color: '#a5b4fc', fontWeight: 500 }}>
-              软件工厂低代码平台 · 自定义工具集
-            </span>
-          </motion.div>
-          
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            style={{
-              fontSize: '18px',
-              color: '#c7d2fe',
-              lineHeight: '1.7',
-              marginBottom: '32px',
-            }}
-          >
-            为低代码平台提供强大的自定义工具能力。
-            <br/>向量管理、数据处理、智能检索，一站式解决方案。
-          </motion.p>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            style={{
-              display: 'flex',
-              gap: '24px',
-              flexWrap: 'wrap',
-            }}
-          >
-            {[
-              { icon: Database, label: '向量管理' },
-              { icon: Zap, label: '智能检索' },
-              { icon: Layers, label: '数据处理' },
-            ].map((item, index) => (
-              <div key={index} style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-              }}>
-                <div style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '8px',
-                  background: 'rgba(99, 102, 241, 0.15)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                  <item.icon size={16} style={{ color: '#a5b4fc' }} />
-                </div>
-                <span style={{ fontSize: '14px', color: '#c7d2fe' }}>{item.label}</span>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </div>
 
       <div 
         className="login-right-panel"
@@ -503,18 +414,18 @@ export const Login: React.FC = () => {
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#334155', marginBottom: '6px' }}>验证码</label>
                 <div style={{ position: 'relative' }}>
                   <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    bottom: 0,
-                    left: 0,
-                    paddingLeft: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    pointerEvents: 'none',
-                    color: '#94a3b8',
-                  }}>
-                    <Key size={18} />
-                  </div>
+                  position: 'absolute',
+                  top: 0,
+                  bottom: 0,
+                  left: 0,
+                  paddingLeft: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  pointerEvents: 'none',
+                  color: '#94a3b8',
+                }}>
+                  <Key size={18} />
+                </div>
                   <input
                     type="text"
                     placeholder="请输入验证码"

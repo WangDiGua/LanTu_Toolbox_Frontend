@@ -1,0 +1,149 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --background: #f8fafc;
+  --surface: #ffffff;
+}
+
+html {
+  background-color: var(--background);
+}
+
+html.dark {
+  --background: #0f172a;
+  --surface: #1e293b;
+  color: #f8fafc;
+}
+
+html.font-default,
+html.font-default * {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+html.font-serif,
+html.font-serif * {
+  font-family: 'Georgia', 'Cambria', 'Times New Roman', 'Times', serif !important;
+}
+
+html.font-mono,
+html.font-mono * {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace !important;
+}
+
+html.font-rounded,
+html.font-rounded * {
+  font-family: 'Nunito', 'Quicksand', system-ui, sans-serif !important;
+}
+
+html.no-transitions * {
+  transition: none !important;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+html, body, #root, * {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+body {
+  background-color: var(--background);
+}
+
+.page-transition-fade {
+  animation: pageFadeIn 0.2s ease-out;
+}
+
+.page-transition-slide {
+  animation: pageSlideIn 0.2s ease-out;
+}
+
+.page-transition-scale {
+  animation: pageScaleIn 0.2s ease-out;
+}
+
+.page-transition-flip {
+  animation: pageFlipIn 0.3s ease-out;
+}
+
+.page-transition-zoom {
+  animation: pageZoomIn 0.2s ease-out;
+}
+
+.page-transition-rotate {
+  animation: pageRotateIn 0.2s ease-out;
+}
+
+.page-transition-none {
+  animation: none;
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pageScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pageFlipIn {
+  from {
+    opacity: 0;
+    transform: perspective(400px) rotateY(90deg);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(400px) rotateY(0);
+  }
+}
+
+@keyframes pageZoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pageRotateIn {
+  from {
+    opacity: 0;
+    transform: rotate(-10deg) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+}

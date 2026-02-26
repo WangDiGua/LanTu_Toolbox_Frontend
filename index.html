@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="no-transitions">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>兰途工具箱</title>
+    <link rel="icon" type="image/png" href="/LOGO.png" />
+    <meta name="description" content="兰途工具箱 - 软件工厂低代码平台自定义工具集，提供向量管理、智能检索、数据处理等功能" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Nunito:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('theme_settings');
+          var root = document.documentElement;
+          
+          if (saved) {
+            var config = JSON.parse(saved);
+            
+            if (config.mode === 'dark' || (config.mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+              root.classList.add('dark');
+            }
+            
+            if (config.fontFamily) {
+              root.classList.add('font-' + config.fontFamily);
+            } else {
+              root.classList.add('font-default');
+            }
+            
+            if (config.color) {
+              root.style.setProperty('--primary', config.color);
+              root.style.setProperty('--primary-hover', config.color);
+            }
+            
+            if (config.fontSize) {
+              root.style.fontSize = config.fontSize + 'px';
+            }
+          } else {
+            root.classList.add('font-default');
+          }
+        } catch (e) {
+          document.documentElement.classList.add('font-default');
+        }
+      })();
+    </script>
+  </head>
+  <body class="bg-background text-slate-800 antialiased">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

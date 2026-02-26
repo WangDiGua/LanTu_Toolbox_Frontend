@@ -1,0 +1,5 @@
+{
+  "name": "VectorAdmin Pro",
+  "description": "An enterprise-grade Vector Management System featuring a dashboard, vector CRUD operations, and system settings with a focus on component reusability and clean architecture.",
+  "requestFramePermissions": []
+}

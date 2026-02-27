@@ -322,7 +322,7 @@ export const TopLayout: React.FC = () => {
         if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
             setShowSearchDropdown(false);
         }
-        if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        if (notificationRef.current && !notificationRef.current.contains(event.target as Node) && !selectedNotification) {
             setShowNotifications(false);
         }
         if (navRef.current && !navRef.current.contains(event.target as Node)) {
@@ -331,7 +331,7 @@ export const TopLayout: React.FC = () => {
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [selectedNotification]);
 
   const user = state.user || { username: 'Guest', role: 'viewer', roleKey: 'viewer', email: 'guest@vector.com', avatar: 'GU' };
   const displayRole = user.role || user.roleKey || 'viewer';

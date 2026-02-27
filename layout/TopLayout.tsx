@@ -341,7 +341,7 @@ export const TopLayout: React.FC = () => {
       <header className="bg-surface border-b border-slate-200 h-14 flex items-center justify-between px-6 shadow-sm z-20 dark:bg-slate-900 dark:border-slate-800">
         {/* Logo */}
         <div className="flex items-center gap-8">
-          <Logo size="sm" showSubtitle={false} />
+          <Logo size="sm" showSubtitle={true} />
 
           {/* Navigation */}
           <nav ref={navRef} className="flex items-center gap-1">

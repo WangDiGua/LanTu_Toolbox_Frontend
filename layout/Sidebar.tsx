@@ -179,7 +179,7 @@ export const Sidebar: React.FC = () => {
           navigate('/dashboard');
         }}
       >
-        <Logo size="md" showSubtitle={false} />
+        <Logo size="md" showSubtitle={true} theme="dark" />
       </div>
 
       <nav className="flex-1 py-6 space-y-1 px-3 overflow-y-auto custom-scrollbar">

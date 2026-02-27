@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Breadcrumb } from '../components/Breadcrumb';
-import { Search, Bell, LogOut, User, Settings, LayoutDashboard, Database, Users, Shield, FileText, List, Lock, Book, Wrench, Eraser, X, Check, ChevronDown, Zap, Menu, BookOpen, Server, Cloud, HardDrive, Globe, Cpu, Code, Terminal, Layers, Package, Box, Activity } from 'lucide-react';
+import * as Icons from 'lucide-react';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -13,43 +13,13 @@ import { APP_CONFIG } from '../config';
 import { useToast } from '../components/Toast';
 import { sseClient, SSEMessage, TaskEvent, NotificationEvent, notificationApi } from '../api';
 import { MenuItem } from '../types';
-
-const iconMap: Record<string, React.ReactNode> = {
-    'LayoutDashboard': <LayoutDashboard size={18} />,
-    'Database': <Database size={18} />,
-    'DatabaseOutlined': <Database size={18} />,
-    'Settings': <Settings size={18} />,
-    'Users': <Users size={18} />,
-    'Shield': <Shield size={18} />,
-    'FileText': <FileText size={18} />,
-    'BookOpen': <BookOpen size={18} />,
-    'Search': <Search size={18} />,
-    'List': <List size={18} />,
-    'Lock': <Lock size={18} />,
-    'Book': <Book size={18} />,
-    'Wrench': <Wrench size={18} />,
-    'Eraser': <Eraser size={18} />,
-    'Server': <Server size={18} />,
-    'Cloud': <Cloud size={18} />,
-    'HardDrive': <HardDrive size={18} />,
-    'Globe': <Globe size={18} />,
-    'Cpu': <Cpu size={18} />,
-    'Code': <Code size={18} />,
-    'Terminal': <Terminal size={18} />,
-    'Layers': <Layers size={18} />,
-    'Package': <Package size={18} />,
-    'Box': <Box size={18} />,
-    'Zap': <Zap size={18} />,
-    'Activity': <Activity size={18} />,
-};
+import { Logo } from '../components/Logo';
 
 const getIcon = (iconName?: string, size: number = 18) => {
   if (!iconName) return null;
-  const icon = iconMap[iconName];
-  if (icon) {
-    return React.cloneElement(icon as React.ReactElement, { size });
-  }
-  return null;
+  const Icon = (Icons as any)[iconName];
+  if (!Icon) return <Icons.HelpCircle size={size} />;
+  return <Icon size={size} />;
 };
 
 const defaultMenus: MenuItem[] = [
@@ -75,6 +45,7 @@ const defaultMenus: MenuItem[] = [
     children: [
       { id: 21, parentId: 2, title: '向量管理', icon: 'Database', path: '/vector', sort: 1, isVisible: true, roles: ['admin', 'editor'] },
       { id: 22, parentId: 2, title: '向量搜索', icon: 'Search', path: '/vector-search', sort: 2, isVisible: true, roles: ['admin', 'editor', 'viewer'] },
+      { id: 23, parentId: 2, title: '同步向量', icon: 'ClipboardList', path: '/vector/sync-logs', sort: 3, isVisible: true, roles: ['admin', 'editor'] },
     ]
   },
   {
@@ -161,18 +132,19 @@ const convertMenus = (menus: MenuItem[]): MenuItemRender[] => {
 };
 
 const SEARCHABLE_ROUTES = [
-  { title: '仪表盘', path: '/dashboard', icon: <LayoutDashboard size={16} /> },
-  { title: '向量管理', path: '/vector', icon: <Database size={16} /> },
-  { title: '向量搜索', path: '/vector-search', icon: <Search size={16} /> },
-  { title: '知识库配置', path: '/kb/config', icon: <Book size={16} /> },
-  { title: '知识库检索', path: '/kb/retrieval', icon: <Search size={16} /> },
-  { title: '大模型输出清洁', path: '/tools/llm-clean', icon: <Eraser size={16} /> },
-  { title: '菜单管理', path: '/settings/menus', icon: <List size={16} /> },
-  { title: '用户管理', path: '/settings/users', icon: <Users size={16} /> },
-  { title: '角色管理', path: '/settings/roles', icon: <Shield size={16} /> },
-  { title: '系统安全', path: '/settings/security', icon: <Lock size={16} /> },
-  { title: '系统日志', path: '/settings/logs', icon: <FileText size={16} /> },
-  { title: '个人中心', path: '/profile', icon: <User size={16} /> },
+  { title: '仪表盘', path: '/dashboard', icon: getIcon('LayoutDashboard', 16) },
+  { title: '向量管理', path: '/vector', icon: getIcon('Database', 16) },
+  { title: '向量搜索', path: '/vector-search', icon: getIcon('Search', 16) },
+  { title: '同步向量', path: '/vector/sync-logs', icon: getIcon('BarChart3', 16) },
+  { title: '知识库配置', path: '/kb/config', icon: getIcon('Book', 16) },
+  { title: '知识库检索', path: '/kb/retrieval', icon: getIcon('Search', 16) },
+  { title: '大模型输出清洁', path: '/tools/llm-clean', icon: getIcon('Eraser', 16) },
+  { title: '菜单管理', path: '/settings/menus', icon: getIcon('List', 16) },
+  { title: '用户管理', path: '/settings/users', icon: getIcon('Users', 16) },
+  { title: '角色管理', path: '/settings/roles', icon: getIcon('Shield', 16) },
+  { title: '系统安全', path: '/settings/security', icon: getIcon('Lock', 16) },
+  { title: '系统日志', path: '/settings/logs', icon: getIcon('FileText', 16) },
+  { title: '个人中心', path: '/profile', icon: getIcon('User', 16) },
 ];
 
 export const TopLayout: React.FC = () => {
@@ -335,7 +307,12 @@ export const TopLayout: React.FC = () => {
     setShowNotifications(false);
   };
 
-  const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path + '/');
+  const isActive = (path: string) => {
+    if (path === '/vector') {
+      return location.pathname === '/vector';
+    }
+    return location.pathname === path || location.pathname.startsWith(path + '/');
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -364,10 +341,7 @@ export const TopLayout: React.FC = () => {
       <header className="bg-surface border-b border-slate-200 h-14 flex items-center justify-between px-6 shadow-sm z-20 dark:bg-slate-900 dark:border-slate-800">
         {/* Logo */}
         <div className="flex items-center gap-8">
-          <div className="flex items-center gap-2">
-            <img src="/LOGO.png" alt="Logo" className="w-8 h-8 rounded-lg object-contain" />
-            <span className="font-bold text-lg text-slate-800 dark:text-white">兰途工具箱</span>
-          </div>
+          <Logo size="sm" showSubtitle={false} />
 
           {/* Navigation */}
           <nav ref={navRef} className="flex items-center gap-1">
@@ -396,7 +370,7 @@ export const TopLayout: React.FC = () => {
                   >
                     {item.icon}
                     <span>{item.title}</span>
-                    {hasChildren && <ChevronDown size={14} className={cn("transition-transform", activeDropdown === String(item.id) && "rotate-180")} />}
+                    {hasChildren && <Icons.ChevronDown size={14} className={cn("transition-transform", activeDropdown === String(item.id) && "rotate-180")} />}
                   </button>
 
                   {/* Dropdown */}
@@ -443,7 +417,7 @@ export const TopLayout: React.FC = () => {
             <Input 
                 placeholder="搜索菜单..." 
                 className="bg-slate-100 border-transparent focus:bg-white h-8 text-sm dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200"
-                leftIcon={<Search size={14} />}
+                leftIcon={<Icons.Search size={14} />}
                 value={searchQuery}
                 onChange={handleSearchChange}
                 onFocus={() => searchQuery && setShowSearchDropdown(true)}
@@ -484,7 +458,7 @@ export const TopLayout: React.FC = () => {
             className="text-slate-500 hover:text-primary p-1.5 hover:bg-slate-100 rounded-lg dark:text-slate-400 dark:hover:bg-slate-800"
             title="系统配置"
           >
-            <Settings size={18} />
+            <Icons.Settings size={18} />
           </button>
 
           {/* Notifications */}
@@ -493,7 +467,7 @@ export const TopLayout: React.FC = () => {
               onClick={() => setShowNotifications(!showNotifications)}
               className="text-slate-500 hover:text-primary p-1.5 hover:bg-slate-100 rounded-lg relative dark:text-slate-400 dark:hover:bg-slate-800"
             >
-              <Bell size={18} />
+              <Icons.Bell size={18} />
               {unreadCount > 0 && (
                 <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full text-[10px] text-white flex items-center justify-center font-bold">
                   {unreadCount > 9 ? '9+' : unreadCount}
@@ -512,8 +486,8 @@ export const TopLayout: React.FC = () => {
                   <div className="px-3 py-2 border-b border-slate-100 flex justify-between items-center dark:border-slate-700">
                     <h3 className="font-semibold text-sm text-slate-800 dark:text-white">通知</h3>
                     <div className="flex gap-1">
-                      <button onClick={handleMarkAllRead} className="text-xs text-blue-600 dark:text-blue-400"><Check size={12} /></button>
-                      <button onClick={handleClearNotifications} className="text-xs text-slate-400"><X size={12} /></button>
+                      <button onClick={handleMarkAllRead} className="text-xs text-blue-600 dark:text-blue-400"><Icons.Check size={12} /></button>
+                      <button onClick={handleClearNotifications} className="text-xs text-slate-400"><Icons.X size={12} /></button>
                     </div>
                   </div>
                   <div className="max-h-60 overflow-y-auto">
@@ -553,7 +527,7 @@ export const TopLayout: React.FC = () => {
                 {user.avatar || 'U'}
               </div>
               <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{user.username}</span>
-              <ChevronDown size={14} className="text-slate-400" />
+              <Icons.ChevronDown size={14} className="text-slate-400" />
             </button>
 
             <AnimatePresence>
@@ -571,13 +545,13 @@ export const TopLayout: React.FC = () => {
                   onClick={() => { setUserMenuOpen(false); navigate('/profile'); }}
                   className="w-full text-left px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 flex items-center dark:text-slate-300 dark:hover:bg-slate-700"
                 >
-                  <User size={12} className="mr-2" /> 个人资料
+                  <Icons.User size={12} className="mr-2" /> 个人资料
                 </button>
                 <button 
                   onClick={handleLogout}
                   className="w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 flex items-center dark:hover:bg-red-900/20"
                 >
-                  <LogOut size={12} className="mr-2" /> 退出
+                  <Icons.LogOut size={12} className="mr-2" /> 退出
                 </button>
               </motion.div>
             )}
@@ -629,7 +603,7 @@ export const TopLayout: React.FC = () => {
                   onClick={handleNotificationDetailClose}
                   className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                 >
-                  <X size={18} />
+                  <Icons.X size={18} />
                 </button>
               </div>
               <div className="px-6 py-4">

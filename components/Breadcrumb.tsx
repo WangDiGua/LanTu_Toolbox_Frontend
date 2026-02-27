@@ -7,6 +7,7 @@ const routeNameMap: Record<string, string> = {
   vector: '向量管理',
   'vector-search': '向量搜索',
   'vector-config': '向量配置',
+  'sync-logs': '同步向量',
   kb: '知识库',
   config: '配置',
   retrieval: '检索',

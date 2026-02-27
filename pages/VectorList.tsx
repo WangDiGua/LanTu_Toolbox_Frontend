@@ -10,7 +10,7 @@ import { VectorWizard } from '../components/VectorWizard';
 import { CronGenerator } from '../components/CronGenerator';
 import { VectorItem, DatabaseItem, TableItem, FieldItem } from '../types';
 import { vectorApi } from '../api'; // Real API
-import { cn, formatDate } from '../utils';
+import { cn, formatDate, getNextCronRunTime } from '../utils';
 import { useToast } from '../components/Toast';
 
 export const VectorList: React.FC = () => {
@@ -659,7 +659,11 @@ export const VectorList: React.FC = () => {
                         <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
                             <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">下次同步时间</p>
                             <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                                {currentSyncItem.nextSyncAt ? formatDate(currentSyncItem.nextSyncAt) : '-'}
+                                {syncForm.enabled && syncForm.expression ? (
+                                    getNextCronRunTime(syncForm.expression) 
+                                        ? formatDate(getNextCronRunTime(syncForm.expression)!.toISOString()) 
+                                        : '表达式无效'
+                                ) : '-'}
                             </p>
                         </div>
                     </div>

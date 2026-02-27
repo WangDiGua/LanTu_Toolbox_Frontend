@@ -156,3 +156,39 @@ export interface FieldItem {
   name: string;
   type: string;
 }
+
+export interface SyncLog {
+  id: number;
+  vectorId: number;
+  vectorTitle: string;
+  collectionName: string;
+  taskType: 'full' | 'incremental' | 'manual' | 'scheduled' | 'api';
+  status: 'pending' | 'running' | 'success' | 'failed';
+  startedAt: string;
+  finishedAt?: string;
+  durationMs?: number;
+  totalRecords: number;
+  processedRecords: number;
+  failedRecords: number;
+  errorMessage?: string;
+  errorStack?: string;
+  triggerType: 'manual' | 'scheduled' | 'api';
+  triggerBy?: string;
+  createdAt: string;
+}
+
+export interface SyncLogListResponse {
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  records: SyncLog[];
+}
+
+export interface SyncLogStats {
+  total: number;
+  running: number;
+  success: number;
+  failed: number;
+  todayAdded: number;
+}

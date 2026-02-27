@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Moon, Sun, Monitor, Type, Palette, Check, Laptop, Move, Layout, Languages, Sidebar, PanelTop } from 'lucide-react';
+import { X, Moon, Sun, Monitor, Type, Palette, Check, Laptop, Move, Layout, Languages, Sidebar, PanelTop, RotateCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../utils';
 import { createPortal } from 'react-dom';
@@ -292,6 +292,24 @@ export const ThemeSettings: React.FC<ThemeSettingsProps> = ({ isOpen, onClose })
                 <section className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3 text-xs text-slate-500 dark:text-slate-400">
                     <p className="mb-1 font-semibold">关于配置持久化</p>
                     <p>配置已保存至本地存储，刷新页面后会自动应用。</p>
+                </section>
+
+                {/* Reset Button */}
+                <section>
+                    <button 
+                        onClick={() => {
+                          dispatch({ type: 'SET_THEME_MODE', payload: 'light' });
+                          dispatch({ type: 'SET_PRIMARY_COLOR', payload: '#2563eb' });
+                          dispatch({ type: 'SET_FONT_SIZE', payload: 16 });
+                          dispatch({ type: 'SET_FONT_FAMILY', payload: 'default' });
+                          dispatch({ type: 'SET_PAGE_TRANSITION', payload: 'fade' });
+                          dispatch({ type: 'SET_LAYOUT_MODE', payload: 'sidebar' });
+                          toastSuccess('已恢复默认设置');
+                        }}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
+                    >
+                        <RotateCcw size={16} /> 恢复默认设置
+                    </button>
                 </section>
 
             </div>

@@ -7,3 +7,4 @@ export * from './modules/system';
 export * from './modules/task';
 export * from './modules/notification';
 export * from './modules/sse';
+export * from './modules/syncLog';

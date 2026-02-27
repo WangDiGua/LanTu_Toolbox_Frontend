@@ -11,6 +11,7 @@ import * as z from 'zod';
 import { authApi } from '../api';
 import { transformMenuData } from '../utils';
 import { resetAuthState } from '../api/request';
+import { Logo } from '../components/Logo';
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -203,12 +204,9 @@ export const Login: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.5 }}
-              style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '64px' }}
+              style={{ marginBottom: '64px' }}
             >
-              <img src="/LOGO.png" alt="Logo" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
-              <span style={{ fontSize: '24px', fontWeight: '700', letterSpacing: '-0.02em' }}>
-                兰途<span style={{ color: '#a5b4fc' }}>工具箱</span>
-              </span>
+              <Logo size="lg" showSubtitle={true} theme="dark" />
             </motion.div>
 
             <motion.h1 

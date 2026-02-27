@@ -1,53 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { 
-    LayoutDashboard, Database, Settings, Users, Shield, FileText, 
-    BookOpen, Search as SearchIcon, List, ChevronRight, ChevronDown, 
-    Lock, Book, Wrench, Eraser, Server, Cloud, HardDrive, Globe,
-    Cpu, Code, Terminal, Layers, Package, Box, Zap, Activity
-} from 'lucide-react';
+import * as Icons from 'lucide-react';
 import { cn } from '../utils';
 import { APP_CONFIG } from '../config';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../store';
 import { MenuItem } from '../types';
-
-const iconMap: Record<string, React.ReactNode> = {
-    'LayoutDashboard': <LayoutDashboard size={20} />,
-    'Database': <Database size={20} />,
-    'DatabaseOutlined': <Database size={20} />,
-    'Settings': <Settings size={20} />,
-    'Users': <Users size={20} />,
-    'Shield': <Shield size={20} />,
-    'FileText': <FileText size={20} />,
-    'BookOpen': <BookOpen size={20} />,
-    'Search': <SearchIcon size={20} />,
-    'List': <List size={20} />,
-    'Lock': <Lock size={20} />,
-    'Book': <Book size={20} />,
-    'Wrench': <Wrench size={20} />,
-    'Eraser': <Eraser size={20} />,
-    'Server': <Server size={20} />,
-    'Cloud': <Cloud size={20} />,
-    'HardDrive': <HardDrive size={20} />,
-    'Globe': <Globe size={20} />,
-    'Cpu': <Cpu size={20} />,
-    'Code': <Code size={20} />,
-    'Terminal': <Terminal size={20} />,
-    'Layers': <Layers size={20} />,
-    'Package': <Package size={20} />,
-    'Box': <Box size={20} />,
-    'Zap': <Zap size={20} />,
-    'Activity': <Activity size={20} />,
-};
+import { Logo } from '../components/Logo';
 
 const getIcon = (iconName?: string, size: number = 20) => {
   if (!iconName) return null;
-  const icon = iconMap[iconName];
-  if (icon) {
-    return React.cloneElement(icon as React.ReactElement, { size });
-  }
-  return null;
+  const Icon = (Icons as any)[iconName];
+  if (!Icon) return <Icons.HelpCircle size={size} />;
+  return <Icon size={size} />;
 };
 
 const defaultMenus: MenuItem[] = [
@@ -73,6 +38,7 @@ const defaultMenus: MenuItem[] = [
     children: [
       { id: 21, parentId: 2, title: '向量管理', icon: 'Database', path: '/vector', sort: 1, isVisible: true, roles: ['admin', 'editor'] },
       { id: 22, parentId: 2, title: '向量搜索', icon: 'Search', path: '/vector-search', sort: 2, isVisible: true, roles: ['admin', 'editor', 'viewer'] },
+      { id: 23, parentId: 2, title: '同步向量', icon: 'ClipboardList', path: '/vector/sync-logs', sort: 3, isVisible: true, roles: ['admin', 'editor'] },
     ]
   },
   {
@@ -213,10 +179,7 @@ export const Sidebar: React.FC = () => {
           navigate('/dashboard');
         }}
       >
-        <div className="flex items-center gap-2">
-          <img src="/LOGO.png" alt="Logo" className="w-8 h-8 rounded-lg object-contain" />
-          <span className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">兰途工具箱</span>
-        </div>
+        <Logo size="md" showSubtitle={false} />
       </div>
 
       <nav className="flex-1 py-6 space-y-1 px-3 overflow-y-auto custom-scrollbar">
@@ -237,7 +200,7 @@ export const Sidebar: React.FC = () => {
                     <span className="mr-3 text-slate-500 group-hover:text-slate-700 dark:text-slate-400 dark:group-hover:text-white transition-colors">{item.icon}</span>
                     {item.title}
                   </div>
-                  {expandedMenus.includes(item.title) ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                  {expandedMenus.includes(item.title) ? <Icons.ChevronDown size={16} /> : <Icons.ChevronRight size={16} />}
                 </button>
                 
                 <AnimatePresence>
@@ -250,7 +213,9 @@ export const Sidebar: React.FC = () => {
                     >
                       <div className="pl-9 pr-2 py-1 space-y-1">
                         {item.children.map((child) => {
-                          const isActive = location.pathname === child.path || location.pathname.startsWith(child.path + '/');
+                          const isActive = location.pathname === child.path || 
+                            (child.path !== '/vector' && location.pathname.startsWith(child.path + '/')) ||
+                            (child.path === '/vector' && location.pathname === '/vector');
                           return (
                             <button
                               key={child.id}

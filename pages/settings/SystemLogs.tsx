@@ -28,11 +28,11 @@ export const SystemLogs: React.FC = () => {
     const [isDetailOpen, setIsDetailOpen] = useState(false);
 
     const [isRetentionOpen, setIsRetentionOpen] = useState(false);
-    const [retentionDays, setRetentionDays] = useState(30);
+    const [retentionDays, setRetentionDays] = useState<number>(30);
     const initialLoadRef = useRef(true);
-
     const [deleteTarget, setDeleteTarget] = useState<SystemLog | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isLoadingRetention, setIsLoadingRetention] = useState(false);
 
     const loadLogs = async () => {
         setLoading(true);
@@ -58,6 +58,20 @@ export const SystemLogs: React.FC = () => {
     useEffect(() => {
         loadLogs();
     }, [page, typeFilter, methodFilter, statusFilter]);
+
+    useEffect(() => {
+        const loadRetention = async () => {
+            try {
+                const res = await logApi.getRetention();
+                if (res.code === 200 && res.data) {
+                    setRetentionDays(res.data.days);
+                }
+            } catch (e) {
+                console.error('Failed to load retention settings:', e);
+            }
+        };
+        loadRetention();
+    }, []);
 
     useEffect(() => {
         if (initialLoadRef.current) {

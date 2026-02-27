@@ -23,9 +23,95 @@ export function generateCaptcha(length = 4): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let result = '';
   for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+    result = chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return result;
+}
+
+export function getNextCronRunTime(cronExpression: string): Date | null {
+  if (!cronExpression || !cronExpression.trim()) return null;
+  
+  const parts = cronExpression.trim().split(/\s+/);
+  if (parts.length !== 5) return null;
+  
+  const [minute, hour, dayOfMonth, month, dayOfWeek] = parts;
+  
+  const now = new Date();
+  const next = new Date(now);
+  next.setSeconds(0);
+  next.setMilliseconds(0);
+  
+  next.setMinutes(next.getMinutes() + 1);
+  
+  const parseField = (field: string, min: number, max: number): number[] => {
+    if (field === '*') {
+      return Array.from({ length: max - min + 1 }, (_, i) => min + i);
+    }
+    
+    if (field.startsWith('*/')) {
+      const step = parseInt(field.slice(2));
+      if (isNaN(step) || step <= 0) return [];
+      const values: number[] = [];
+      for (let i = min; i <= max; i += step) {
+        values.push(i);
+      }
+      return values;
+    }
+    
+    if (field.includes(',')) {
+      return field.split(',').map(v => parseInt(v)).filter(v => !isNaN(v) && v >= min && v <= max);
+    }
+    
+    if (field.includes('-')) {
+      const [start, end] = field.split('-').map(v => parseInt(v));
+      if (isNaN(start) || isNaN(end)) return [];
+      const values: number[] = [];
+      for (let i = start; i <= end; i++) {
+        if (i >= min && i <= max) values.push(i);
+      }
+      return values;
+    }
+    
+    const value = parseInt(field);
+    return isNaN(value) ? [] : [value];
+  };
+  
+  const minutes = parseField(minute, 0, 59);
+  const hours = parseField(hour, 0, 23);
+  const daysOfMonth = parseField(dayOfMonth, 1, 31);
+  const months = parseField(month, 1, 12);
+  const daysOfWeek = parseField(dayOfWeek, 0, 6);
+  
+  if (minutes.length === 0 || hours.length === 0) return null;
+  
+  for (let attempt = 0; attempt < 366 * 24 * 60; attempt++) {
+    const m = next.getMinutes();
+    const h = next.getHours();
+    const dom = next.getDate();
+    const mon = next.getMonth() + 1;
+    const dow = next.getDay();
+    
+    const minuteMatch = minutes.includes(m);
+    const hourMatch = hours.includes(h);
+    const monthMatch = months.length === 0 || month === '*' || months.includes(mon);
+    
+    let dayMatch = true;
+    if (dayOfMonth !== '*' && dayOfWeek !== '*') {
+      dayMatch = daysOfMonth.includes(dom) || daysOfWeek.includes(dow);
+    } else if (dayOfMonth !== '*') {
+      dayMatch = daysOfMonth.includes(dom);
+    } else if (dayOfWeek !== '*') {
+      dayMatch = daysOfWeek.includes(dow);
+    }
+    
+    if (minuteMatch && hourMatch && monthMatch && dayMatch) {
+      return next;
+    }
+    
+    next.setMinutes(next.getMinutes() + 1);
+  }
+  
+  return null;
 }
 
 export const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

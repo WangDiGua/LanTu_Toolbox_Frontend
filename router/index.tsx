@@ -3,6 +3,7 @@ import React from 'react';
 const Dashboard = React.lazy(() => import('../pages/Dashboard').then(module => ({ default: module.Dashboard })));
 const VectorList = React.lazy(() => import('../pages/VectorList').then(module => ({ default: module.VectorList })));
 const VectorSearch = React.lazy(() => import('../pages/VectorSearch').then(module => ({ default: module.VectorSearch })));
+const SyncLogs = React.lazy(() => import('../pages/SyncLogs').then(module => ({ default: module.SyncLogs })));
 const KBConfig = React.lazy(() => import('../pages/KBConfig').then(module => ({ default: module.KBConfig })));
 const KBRetrieval = React.lazy(() => import('../pages/KBRetrieval').then(module => ({ default: module.KBRetrieval })));
 const LLMClean = React.lazy(() => import('../pages/LLMClean').then(module => ({ default: module.LLMClean })));
@@ -32,6 +33,7 @@ export const componentMap: Record<string, React.ComponentType<any>> = {
   'Dashboard': Dashboard,
   'VectorList': VectorList,
   'VectorSearch': VectorSearch,
+  'SyncLogs': SyncLogs,
   'KBConfig': KBConfig,
   'KBRetrieval': KBRetrieval,
   'LLMClean': LLMClean,
@@ -59,6 +61,13 @@ export const defaultRoutes: RouteConfig[] = [
     permissions: ['vector:manage'],
     roles: ['admin', 'editor'],
     meta: { title: '向量管理' }
+  },
+  {
+    path: 'vector/sync-logs',
+    component: SyncLogs,
+    permissions: ['vector:manage'],
+    roles: ['admin', 'editor'],
+    meta: { title: '同步向量' }
   },
   {
     path: 'vector-search',

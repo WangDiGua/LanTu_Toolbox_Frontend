@@ -1,19 +1,26 @@
 import React from 'react';
 import { cn } from '../utils';
+import { useStore } from '../store';
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg';
   showSubtitle?: boolean;
-  theme?: 'light' | 'dark';
+  theme?: 'light' | 'dark' | 'auto';
   className?: string;
 }
 
 export const Logo: React.FC<LogoProps> = ({ 
   size = 'md', 
   showSubtitle = false, 
-  theme = 'light',
+  theme = 'auto',
   className 
 }) => {
+  const { state } = useStore();
+  
+  const isDark = theme === 'auto' 
+    ? state.themeMode === 'dark'
+    : theme === 'dark';
+
   const sizeConfig = {
     sm: { icon: 'w-6 h-6', title: 'text-base', subtitle: 'text-[8px]' },
     md: { icon: 'w-8 h-8', title: 'text-lg', subtitle: 'text-[10px]' },
@@ -48,7 +55,7 @@ export const Logo: React.FC<LogoProps> = ({
         <span className={cn(
           "font-bold tracking-tight leading-tight",
           config.title,
-          theme === 'dark' ? 'text-white' : 'text-slate-800'
+          isDark ? 'text-white' : 'text-slate-800'
         )}>
           兰途工具箱
         </span>
@@ -56,12 +63,12 @@ export const Logo: React.FC<LogoProps> = ({
           <div className="flex items-center gap-2 mt-0.5">
             <span className={cn(
               "h-[1.5px] w-3",
-              theme === 'dark' ? 'bg-blue-400/50' : 'bg-slate-300'
+              isDark ? 'bg-blue-400/50' : 'bg-slate-300'
             )}></span>
             <span className={cn(
               "font-bold tracking-[0.25em] uppercase",
               config.subtitle,
-              theme === 'dark' ? 'text-blue-400' : 'text-slate-400'
+              isDark ? 'text-blue-400' : 'text-slate-400'
             )}>
               LT Toolbox Pro
             </span>

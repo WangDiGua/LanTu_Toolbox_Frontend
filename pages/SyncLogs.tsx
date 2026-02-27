@@ -70,7 +70,14 @@ export const SyncLogs: React.FC = () => {
     try {
       const res = await syncLogApi.getStats();
       if (res.code === 200) {
-        setStats(res.data);
+        const data = res.data as any;
+        setStats({
+          total: data.total || 0,
+          running: data.running || 0,
+          success: data.success || 0,
+          failed: data.failed || 0,
+          todayAdded: data.todayAdded ?? data.today_added ?? data.today ?? 0,
+        });
       }
     } catch (e) {
       console.error('Failed to load stats:', e);

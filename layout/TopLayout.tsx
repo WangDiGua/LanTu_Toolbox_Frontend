@@ -204,6 +204,12 @@ export const TopLayout: React.FC = () => {
           type: 'MERGE_NOTIFICATIONS', 
           payload: newNotifications 
         });
+      } else if (message.type === 'notification_read') {
+        const { id, read } = message.data as { id: string; read: boolean };
+        dispatch({ 
+          type: 'MARK_NOTIFICATION_READ', 
+          payload: { id, read }
+        });
       }
     };
 
@@ -286,10 +292,8 @@ export const TopLayout: React.FC = () => {
         const res = await notificationApi.markAsRead(Number(note.id));
         if (res.code === 200) {
           dispatch({ 
-            type: 'SET_NOTIFICATIONS', 
-            payload: state.notifications.map(n => 
-              n.id === note.id ? { ...n, read: true } : n
-            )
+            type: 'MARK_NOTIFICATION_READ', 
+            payload: { id: note.id, read: true }
           });
         }
       } catch (e) {

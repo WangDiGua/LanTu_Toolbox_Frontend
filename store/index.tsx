@@ -40,6 +40,7 @@ type Action =
   | { type: 'ADD_NOTIFICATION'; payload: NotificationItem }
   | { type: 'SET_NOTIFICATIONS'; payload: NotificationItem[] }
   | { type: 'MERGE_NOTIFICATIONS'; payload: NotificationItem[] }
+  | { type: 'MARK_NOTIFICATION_READ'; payload: { id: string; read: boolean } }
   | { type: 'MARK_ALL_READ' }
   | { type: 'CLEAR_NOTIFICATIONS' }
   | { type: 'ADD_TASK'; payload: BackgroundTask }
@@ -123,6 +124,13 @@ const appReducer = (state: AppState, action: Action): AppState => {
         notifications: [...newItems, ...state.notifications].slice(0, 100)
       };
     }
+    case 'MARK_NOTIFICATION_READ':
+      return { 
+        ...state, 
+        notifications: state.notifications.map(n => 
+          n.id === action.payload.id ? { ...n, read: action.payload.read } : n
+        )
+      };
     case 'MARK_ALL_READ':
       return { ...state, notifications: state.notifications.map(n => ({ ...n, read: true })) };
     case 'CLEAR_NOTIFICATIONS':

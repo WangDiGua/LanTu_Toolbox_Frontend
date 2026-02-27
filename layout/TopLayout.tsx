@@ -14,6 +14,7 @@ import { useToast } from '../components/Toast';
 import { sseClient, SSEMessage, TaskEvent, NotificationEvent, notificationApi } from '../api';
 import { MenuItem } from '../types';
 import { Logo } from '../components/Logo';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 
 const getIcon = (iconName?: string, size: number = 18) => {
   if (!iconName) return null;
@@ -157,6 +158,7 @@ export const TopLayout: React.FC = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<any>(null);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
   
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<typeof SEARCHABLE_ROUTES>([]);
@@ -269,6 +271,7 @@ export const TopLayout: React.FC = () => {
       if (res.code === 200) {
         dispatch({ type: 'CLEAR_NOTIFICATIONS' });
         toastSuccess('已清空所有通知');
+        setShowClearConfirm(false);
       }
     } catch (e) {
       console.error('Failed to clear notifications:', e);
@@ -486,8 +489,8 @@ export const TopLayout: React.FC = () => {
                   <div className="px-3 py-2 border-b border-slate-100 flex justify-between items-center dark:border-slate-700">
                     <h3 className="font-semibold text-sm text-slate-800 dark:text-white">通知</h3>
                     <div className="flex gap-1">
-                      <button onClick={handleMarkAllRead} className="text-xs text-blue-600 dark:text-blue-400"><Icons.Check size={12} /></button>
-                      <button onClick={handleClearNotifications} className="text-xs text-slate-400"><Icons.X size={12} /></button>
+                      <button onClick={handleMarkAllRead} className="text-xs text-blue-600 dark:text-blue-400" title="全部已读"><Icons.Check size={12} /></button>
+                      <button onClick={() => setShowClearConfirm(true)} className="text-xs text-slate-400" title="清空通知"><Icons.X size={12} /></button>
                     </div>
                   </div>
                   <div className="max-h-60 overflow-y-auto">
@@ -639,6 +642,17 @@ export const TopLayout: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ConfirmDialog
+        isOpen={showClearConfirm}
+        onClose={() => setShowClearConfirm(false)}
+        onConfirm={handleClearNotifications}
+        title="清空通知"
+        message="确定要清空所有通知吗？此操作不可恢复。"
+        confirmText="清空"
+        cancelText="取消"
+        type="danger"
+      />
     </div>
   );
 };

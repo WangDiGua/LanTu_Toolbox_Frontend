@@ -13,6 +13,7 @@ import { useStore } from '../store';
 import { APP_CONFIG } from '../config';
 import { useToast } from '../components/Toast';
 import { sseClient, SSEMessage, TaskEvent, NotificationEvent, notificationApi } from '../api';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 
 // Search Data Source
 const SEARCHABLE_ROUTES = [
@@ -39,6 +40,7 @@ export const MainLayout: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<any>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
   
   // Search State
   const [searchQuery, setSearchQuery] = useState('');
@@ -157,6 +159,7 @@ export const MainLayout: React.FC = () => {
       if (res.code === 200) {
         dispatch({ type: 'CLEAR_NOTIFICATIONS' });
         toastSuccess('已清空所有通知');
+        setShowClearConfirm(false);
       }
     } catch (e) {
       console.error('Failed to clear notifications:', e);
@@ -304,7 +307,7 @@ export const MainLayout: React.FC = () => {
                                     <button onClick={handleMarkAllRead} className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400" title="全部已读">
                                         <Check size={14} />
                                     </button>
-                                    <button onClick={handleClearNotifications} className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" title="清空">
+                                    <button onClick={() => setShowClearConfirm(true)} className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" title="清空">
                                         <X size={14} />
                                     </button>
                                 </div>
@@ -461,6 +464,17 @@ export const MainLayout: React.FC = () => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        <ConfirmDialog
+          isOpen={showClearConfirm}
+          onClose={() => setShowClearConfirm(false)}
+          onConfirm={handleClearNotifications}
+          title="清空通知"
+          message="确定要清空所有通知吗？此操作不可恢复。"
+          confirmText="清空"
+          cancelText="取消"
+          type="danger"
+        />
       </div>
     </div>
   );

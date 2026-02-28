@@ -145,7 +145,12 @@ const App: React.FC = () => {
   return (
     <StoreProvider>
       <ToastProvider>
-        <HashRouter>
+        <HashRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
           <AppRoutes />
         </HashRouter>
       </ToastProvider>

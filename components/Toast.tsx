@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
+import { CheckCircle, AlertCircle, Info, AlertTriangle, X, Sparkles, Zap, AlertOctagon } from 'lucide-react';
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
@@ -30,22 +30,30 @@ export const useToast = () => {
 
 const TOAST_DURATION = 3;
 
-const toastStyles = {
+const toastConfig = {
   success: {
-    iconColor: '#22c55e',
-    accentBorder: '#22c55e',
+    gradient: 'from-emerald-500 to-teal-500',
+    bgGradient: 'from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20',
+    icon: CheckCircle,
+    glowColor: 'rgba(16, 185, 129, 0.3)',
   },
   error: {
-    iconColor: '#ef4444',
-    accentBorder: '#ef4444',
+    gradient: 'from-red-500 to-rose-500',
+    bgGradient: 'from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20',
+    icon: AlertOctagon,
+    glowColor: 'rgba(239, 68, 68, 0.3)',
   },
   info: {
-    iconColor: '#3b82f6',
-    accentBorder: '#3b82f6',
+    gradient: 'from-blue-500 to-indigo-500',
+    bgGradient: 'from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20',
+    icon: Zap,
+    glowColor: 'rgba(59, 130, 246, 0.3)',
   },
   warning: {
-    iconColor: '#f59e0b',
-    accentBorder: '#f59e0b',
+    gradient: 'from-amber-500 to-orange-500',
+    bgGradient: 'from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20',
+    icon: AlertTriangle,
+    glowColor: 'rgba(245, 158, 11, 0.3)',
   },
 };
 
@@ -57,14 +65,9 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   const showToast = useCallback((message: string, type: ToastType = 'info') => {
-    const toastKey = `${type}_${message}`;
+    const toastKey = `${type}_${message}_${Date.now()}`;
     
     setToasts((prev) => {
-      const existing = prev.find(t => t.id === toastKey);
-      if (existing) {
-        return prev;
-      }
-      
       return [...prev, { id: toastKey, message, type }];
     });
     
@@ -81,21 +84,10 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <ToastContext.Provider value={{ showToast, success, error, info, warning }}>
       {children}
-      <div style={{
-        position: 'fixed',
-        top: '24px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: 9999,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '10px',
-        pointerEvents: 'none',
-        alignItems: 'center',
-      }}>
+      <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-3 pointer-events-none items-center">
         <AnimatePresence>
           {toasts.map((toast) => (
-            <ToastItem key={toast.id} toast={toast} />
+            <ToastItem key={toast.id} toast={toast} onClose={() => removeToast(toast.id)} />
           ))}
         </AnimatePresence>
       </div>
@@ -103,69 +95,77 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 };
 
-const ToastItem: React.FC<{ toast: Toast }> = ({ toast }) => {
-  const styles = toastStyles[toast.type];
+const ToastItem: React.FC<{ toast: Toast; onClose: () => void }> = ({ toast, onClose }) => {
+  const config = toastConfig[toast.type];
+  const Icon = config.icon;
+  const progressRef = useRef<HTMLDivElement>(null);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: -16, scale: 0.96 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -16, scale: 0.96 }}
+      initial={{ opacity: 0, y: -20, scale: 0.95, filter: 'blur(4px)' }}
+      animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+      exit={{ opacity: 0, y: -10, scale: 0.95, filter: 'blur(4px)' }}
       transition={{ 
         type: 'spring', 
-        stiffness: 400, 
-        damping: 25,
+        stiffness: 500, 
+        damping: 30,
         mass: 0.8
       }}
+      className="pointer-events-auto relative group"
       style={{
-        pointerEvents: 'auto',
-        minWidth: '300px',
-        maxWidth: '400px',
-        padding: '12px 16px',
-        borderRadius: '4px',
-        backgroundColor: '#ffffff',
-        boxShadow: '0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-        position: 'relative',
-        overflow: 'hidden',
-        border: '1px solid rgba(0, 0, 0, 0.04)',
+        minWidth: '320px',
+        maxWidth: '420px',
       }}
     >
-      <div style={{ 
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        width: '3px',
-        backgroundColor: styles.accentBorder,
-      }} />
+      <div 
+        className="absolute -inset-1 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        style={{
+          background: `radial-gradient(circle at 50% 0%, ${config.glowColor}, transparent 70%)`,
+        }}
+      />
       
-      <div style={{ 
-        flexShrink: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '28px',
-        height: '28px',
-        borderRadius: '6px',
-        backgroundColor: `${styles.iconColor}12`,
-      }}>
-        {toast.type === 'success' && <CheckCircle size={18} color={styles.iconColor} strokeWidth={2.5} />}
-        {toast.type === 'error' && <AlertCircle size={18} color={styles.iconColor} strokeWidth={2.5} />}
-        {toast.type === 'info' && <Info size={18} color={styles.iconColor} strokeWidth={2.5} />}
-        {toast.type === 'warning' && <AlertTriangle size={18} color={styles.iconColor} strokeWidth={2.5} />}
-      </div>
-      
-      <div style={{ 
-        flex: 1, 
-        fontSize: '14px', 
-        fontWeight: 500, 
-        color: '#1f2937',
-        lineHeight: '1.5',
-      }}>
-        {toast.message}
+      <div className={`
+        relative flex items-center gap-3 px-4 py-3.5 rounded-xl
+        bg-gradient-to-r ${config.bgGradient}
+        backdrop-blur-xl
+        border border-white/60 dark:border-white/10
+        shadow-lg shadow-black/5 dark:shadow-black/20
+        overflow-hidden
+      `}>
+        <div className={`
+          absolute inset-0 bg-gradient-to-r ${config.gradient} opacity-0
+        `} />
+        
+        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black/5 dark:bg-white/5">
+          <motion.div 
+            ref={progressRef}
+            className={`h-full bg-gradient-to-r ${config.gradient}`}
+            initial={{ scaleX: 1 }}
+            animate={{ scaleX: 0 }}
+            transition={{ duration: TOAST_DURATION, ease: 'linear' }}
+            style={{ transformOrigin: 'left' }}
+          />
+        </div>
+
+        <div className={`
+          relative flex-shrink-0 w-9 h-9 rounded-lg
+          bg-gradient-to-br ${config.gradient}
+          flex items-center justify-center
+          shadow-lg
+        `}>
+          <Icon size={18} className="text-white" strokeWidth={2.5} />
+        </div>
+        
+        <p className="relative flex-1 text-sm font-medium text-slate-700 dark:text-slate-200 leading-snug">
+          {toast.message}
+        </p>
+        
+        <button 
+          onClick={onClose}
+          className="relative flex-shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-black/5 dark:hover:bg-white/10 dark:hover:text-slate-300 transition-colors opacity-0 group-hover:opacity-100"
+        >
+          <X size={14} />
+        </button>
       </div>
     </motion.div>
   );

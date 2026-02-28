@@ -357,7 +357,12 @@ export const TopLayout: React.FC = () => {
               const active = isActive(item.path);
               
               return (
-                <div key={item.id} className="relative">
+                <div 
+                  key={item.id} 
+                  className="relative"
+                  onMouseEnter={() => hasChildren && setActiveDropdown(String(item.id))}
+                  onMouseLeave={() => hasChildren && setActiveDropdown(null)}
+                >
                   <button
                     onClick={() => {
                       if (hasChildren) {
@@ -367,7 +372,6 @@ export const TopLayout: React.FC = () => {
                         setActiveDropdown(null);
                       }
                     }}
-                    onMouseEnter={() => hasChildren && setActiveDropdown(String(item.id))}
                     className={cn(
                       "flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all",
                       active 

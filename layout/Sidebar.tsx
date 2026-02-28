@@ -137,6 +137,7 @@ export const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const { state } = useStore();
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
+  const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
 
   const menuItems: MenuItemRender[] = useMemo(() => {
     if (state.menus && state.menus.length > 0) {
@@ -183,15 +184,21 @@ export const Sidebar: React.FC = () => {
       </div>
 
       <nav className="flex-1 py-6 space-y-1 px-3 overflow-y-auto custom-scrollbar">
-        {menuItems.map((item) => (
+        {menuItems.map((item) => {
+          const isExpanded = expandedMenus.includes(item.title) || hoveredMenu === item.title;
+          
+          return (
           <div key={item.id}>
             {item.children && item.children.length > 0 ? (
-              <div className="mb-1">
+              <div className="mb-1"
+                onMouseEnter={() => setHoveredMenu(item.title)}
+                onMouseLeave={() => setHoveredMenu(null)}
+              >
                 <button
                   onClick={() => toggleMenu(item.title)}
                   className={cn(
                     'w-full group flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-md transition-all duration-200',
-                    expandedMenus.includes(item.title)
+                    isExpanded
                       ? 'text-slate-800 bg-slate-100 dark:text-white dark:bg-slate-800/50' 
                       : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'
                   )}
@@ -200,11 +207,11 @@ export const Sidebar: React.FC = () => {
                     <span className="mr-3 text-slate-500 group-hover:text-slate-700 dark:text-slate-400 dark:group-hover:text-white transition-colors">{item.icon}</span>
                     {item.title}
                   </div>
-                  {expandedMenus.includes(item.title) ? <Icons.ChevronDown size={16} /> : <Icons.ChevronRight size={16} />}
+                  {isExpanded ? <Icons.ChevronDown size={16} /> : <Icons.ChevronRight size={16} />}
                 </button>
                 
                 <AnimatePresence>
-                  {expandedMenus.includes(item.title) && (
+                  {isExpanded && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
@@ -261,7 +268,8 @@ export const Sidebar: React.FC = () => {
               })()
             )}
           </div>
-        ))}
+        );
+        })}
       </nav>
 
       <div className="p-4 border-t transition-colors duration-300

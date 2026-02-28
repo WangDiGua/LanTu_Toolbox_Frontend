@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '../utils';
 import { Clock, RefreshCw, Calendar, Code } from 'lucide-react';
 import { Input } from './Input';
@@ -22,13 +22,55 @@ export const CronGenerator: React.FC<CronGeneratorProps> = ({ value, onChange })
   const [weeklyDay, setWeeklyDay] = useState(1);
   const [weeklyTime, setWeeklyTime] = useState('03:00');
 
+  const isInitialized = useRef(false);
+  const isUserChange = useRef(false);
+
   useEffect(() => {
     if (!value) return;
-    if (value.includes('/')) setActiveTab('interval');
-    else if (value.endsWith('* * *')) setActiveTab('daily');
-  }, []);
+    if (isUserChange.current) {
+      isUserChange.current = false;
+      return;
+    }
+    
+    const parts = value.trim().split(/\s+/);
+    if (parts.length !== 5) {
+      setActiveTab('custom');
+      isInitialized.current = true;
+      return;
+    }
+    
+    const [minute, hour, dayOfMonth, month, dayOfWeek] = parts;
+    
+    if (minute.startsWith('*/') && hour === '*' && dayOfMonth === '*' && month === '*' && dayOfWeek === '*') {
+      setActiveTab('interval');
+      setIntervalType('minutes');
+      setIntervalValue(parseInt(minute.slice(2)) || 30);
+    } else if (minute === '0' && hour.startsWith('*/') && dayOfMonth === '*' && month === '*' && dayOfWeek === '*') {
+      setActiveTab('interval');
+      setIntervalType('hours');
+      setIntervalValue(parseInt(hour.slice(2)) || 1);
+    } else if (dayOfMonth === '*' && month === '*' && dayOfWeek === '*') {
+      setActiveTab('daily');
+      const h = hour.padStart(2, '0');
+      const m = minute.padStart(2, '0');
+      setDailyTime(`${h}:${m}`);
+    } else if (dayOfMonth === '*' && month === '*' && dayOfWeek !== '*') {
+      setActiveTab('weekly');
+      setWeeklyDay(parseInt(dayOfWeek) || 1);
+      const h = hour.padStart(2, '0');
+      const m = minute.padStart(2, '0');
+      setWeeklyTime(`${h}:${m}`);
+    } else {
+      setActiveTab('custom');
+    }
+    
+    isInitialized.current = true;
+  }, [value]);
 
-  const generateCron = () => {
+  useEffect(() => {
+    if (!isInitialized.current) return;
+    if (activeTab === 'custom') return;
+    
     let cron = '';
     switch (activeTab) {
       case 'interval':
@@ -46,17 +88,26 @@ export const CronGenerator: React.FC<CronGeneratorProps> = ({ value, onChange })
         const [wHour, wMinute] = weeklyTime.split(':');
         cron = `${Number(wMinute)} ${Number(wHour)} * * ${weeklyDay}`;
         break;
-      case 'custom':
-        return;
     }
-    onChange(cron);
-  };
-
-  useEffect(() => {
-    if (activeTab !== 'custom') {
-      generateCron();
+    
+    if (cron && cron !== value) {
+      isUserChange.current = true;
+      onChange(cron);
     }
   }, [activeTab, intervalType, intervalValue, dailyTime, weeklyDay, weeklyTime]);
+
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    isInitialized.current = true;
+  };
+
+  const handleManualChange = (newValue: string) => {
+    isUserChange.current = true;
+    onChange(newValue);
+    if (activeTab !== 'custom') {
+      setActiveTab('custom');
+    }
+  };
 
   const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
     { id: 'interval', label: '按周期', icon: <RefreshCw size={14} /> },
@@ -71,7 +122,7 @@ export const CronGenerator: React.FC<CronGeneratorProps> = ({ value, onChange })
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => handleTabChange(tab.id)}
             className={cn(
               "flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-md transition-all",
               activeTab === tab.id
@@ -94,12 +145,18 @@ export const CronGenerator: React.FC<CronGeneratorProps> = ({ value, onChange })
               min={1} 
               max={59}
               value={intervalValue}
-              onChange={(e) => setIntervalValue(Math.max(1, parseInt(e.target.value) || 1))}
+              onChange={(e) => {
+                isInitialized.current = true;
+                setIntervalValue(Math.max(1, parseInt(e.target.value) || 1));
+              }}
               className="w-20 p-2.5 border border-slate-300 dark:border-slate-600 rounded-md text-center focus:border-blue-500 outline-none bg-white dark:bg-slate-800 dark:text-white"
             />
             <Select 
               value={intervalType}
-              onChange={(val) => setIntervalType(val as any)}
+              onChange={(val) => {
+                isInitialized.current = true;
+                setIntervalType(val as any);
+              }}
               wrapperClassName="w-28"
               options={[
                   { label: '分钟', value: 'minutes' },
@@ -116,7 +173,10 @@ export const CronGenerator: React.FC<CronGeneratorProps> = ({ value, onChange })
             <input 
               type="time" 
               value={dailyTime}
-              onChange={(e) => setDailyTime(e.target.value)}
+              onChange={(e) => {
+                isInitialized.current = true;
+                setDailyTime(e.target.value);
+              }}
               className="p-2.5 border border-slate-300 dark:border-slate-600 rounded-md focus:border-blue-500 outline-none bg-white dark:bg-slate-800 dark:text-white"
             />
             <span>执行同步</span>
@@ -128,7 +188,10 @@ export const CronGenerator: React.FC<CronGeneratorProps> = ({ value, onChange })
             <span>每周</span>
             <Select 
               value={weeklyDay}
-              onChange={(val) => setWeeklyDay(Number(val))}
+              onChange={(val) => {
+                isInitialized.current = true;
+                setWeeklyDay(Number(val));
+              }}
               wrapperClassName="w-28"
               options={[
                   { label: '星期一', value: 1 },
@@ -144,7 +207,10 @@ export const CronGenerator: React.FC<CronGeneratorProps> = ({ value, onChange })
             <input 
               type="time" 
               value={weeklyTime}
-              onChange={(e) => setWeeklyTime(e.target.value)}
+              onChange={(e) => {
+                isInitialized.current = true;
+                setWeeklyTime(e.target.value);
+              }}
               className="p-2.5 border border-slate-300 dark:border-slate-600 rounded-md focus:border-blue-500 outline-none bg-white dark:bg-slate-800 dark:text-white"
             />
             <span>执行同步</span>
@@ -163,10 +229,7 @@ export const CronGenerator: React.FC<CronGeneratorProps> = ({ value, onChange })
         <div className="relative">
             <Input 
                 value={value} 
-                onChange={(e) => {
-                    onChange(e.target.value);
-                    if (activeTab !== 'custom') setActiveTab('custom');
-                }}
+                onChange={(e) => handleManualChange(e.target.value)}
                 className="font-mono bg-white dark:bg-slate-800"
                 placeholder="* * * * *"
             />

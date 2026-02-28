@@ -234,11 +234,12 @@ export const VectorList: React.FC = () => {
   // Sync Handlers
   const handleOpenSync = (item: VectorItem) => {
       setCurrentSyncItem(item);
+      const vectorItem = item as any;
       setSyncForm({
-          enabled: item.cronConfig?.enabled || false,
-          expression: item.cronConfig?.expression || '0 2 * * *',
-          syncMode: item.cronConfig?.syncMode || 'full',
-          incrementalField: item.cronConfig?.incrementalField || ''
+          enabled: vectorItem.isCronEnabled === 1 || vectorItem.cronConfig?.enabled || false,
+          expression: vectorItem.cronExpression || vectorItem.cronConfig?.expression || '0 2 * * *',
+          syncMode: vectorItem.cronConfig?.syncMode || 'full',
+          incrementalField: vectorItem.cronConfig?.incrementalField || ''
       });
       setIsSyncModalOpen(true);
   };

@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, AlertCircle, Info, AlertTriangle, X, Sparkles, Zap, AlertOctagon } from 'lucide-react';
+import { CheckCircle, XCircle, Info, AlertTriangle, X } from 'lucide-react';
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
@@ -28,32 +28,28 @@ export const useToast = () => {
   return context;
 };
 
-const TOAST_DURATION = 3;
+const TOAST_DURATION = 4;
 
 const toastConfig = {
   success: {
-    gradient: 'from-emerald-500 to-teal-500',
-    bgGradient: 'from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20',
     icon: CheckCircle,
-    glowColor: 'rgba(16, 185, 129, 0.3)',
+    color: 'text-emerald-500',
+    label: '操作成功',
   },
   error: {
-    gradient: 'from-red-500 to-rose-500',
-    bgGradient: 'from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20',
-    icon: AlertOctagon,
-    glowColor: 'rgba(239, 68, 68, 0.3)',
+    icon: XCircle,
+    color: 'text-red-500',
+    label: '发生错误',
   },
   info: {
-    gradient: 'from-blue-500 to-indigo-500',
-    bgGradient: 'from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20',
-    icon: Zap,
-    glowColor: 'rgba(59, 130, 246, 0.3)',
+    icon: Info,
+    color: 'text-blue-500',
+    label: '提示信息',
   },
   warning: {
-    gradient: 'from-amber-500 to-orange-500',
-    bgGradient: 'from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20',
     icon: AlertTriangle,
-    glowColor: 'rgba(245, 158, 11, 0.3)',
+    color: 'text-amber-500',
+    label: '警告提醒',
   },
 };
 
@@ -84,7 +80,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <ToastContext.Provider value={{ showToast, success, error, info, warning }}>
       {children}
-      <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-3 pointer-events-none items-center">
+      <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-4 pointer-events-none items-center w-full max-w-md px-4">
         <AnimatePresence>
           {toasts.map((toast) => (
             <ToastItem key={toast.id} toast={toast} onClose={() => removeToast(toast.id)} />
@@ -98,73 +94,103 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 const ToastItem: React.FC<{ toast: Toast; onClose: () => void }> = ({ toast, onClose }) => {
   const config = toastConfig[toast.type];
   const Icon = config.icon;
-  const progressRef = useRef<HTMLDivElement>(null);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: -20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+      initial={{ opacity: 0, y: -30, scale: 0.9, x: '-50%' }}
+      animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
+      exit={{ opacity: 0, y: -20, scale: 0.9, x: '-50%' }}
       transition={{ 
         type: 'spring', 
-        stiffness: 500, 
-        damping: 30,
+        stiffness: 400, 
+        damping: 25,
         mass: 0.8
       }}
-      className="pointer-events-auto relative group"
-      style={{
-        minWidth: '320px',
-        maxWidth: '420px',
-      }}
+      className="pointer-events-auto relative w-full"
     >
-      <div 
-        className="absolute -inset-1 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        style={{
-          background: `radial-gradient(circle at 50% 0%, ${config.glowColor}, transparent 70%)`,
-        }}
-      />
-      
-      <div className={`
-        relative flex items-center gap-3 px-4 py-3.5 rounded-xl
-        bg-gradient-to-r ${config.bgGradient}
-        backdrop-blur-xl
-        border border-white/60 dark:border-white/10
-        shadow-lg shadow-black/5 dark:shadow-black/20
-        overflow-hidden
-      `}>
-        <div className={`
-          absolute inset-0 bg-gradient-to-r ${config.gradient} opacity-0
-        `} />
-        
-        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black/5 dark:bg-white/5">
-          <motion.div 
-            ref={progressRef}
-            className={`h-full bg-gradient-to-r ${config.gradient}`}
-            initial={{ scaleX: 1 }}
-            animate={{ scaleX: 0 }}
-            transition={{ duration: TOAST_DURATION, ease: 'linear' }}
-            style={{ transformOrigin: 'left' }}
-          />
-        </div>
-
-        <div className={`
-          relative flex-shrink-0 w-9 h-9 rounded-lg
-          bg-gradient-to-br ${config.gradient}
-          flex items-center justify-center
-          shadow-lg
-        `}>
-          <Icon size={18} className="text-white" strokeWidth={2.5} />
+      {/* 明亮模式 - 拟物化风格 */}
+      <div className="
+        relative flex items-center gap-4 px-5 py-4 rounded-2xl
+        bg-slate-100 
+        border border-white/80
+        transition-all duration-300
+        dark:hidden
+      " style={{
+        boxShadow: `
+          8px 8px 16px rgba(0, 0, 0, 0.08),
+          -8px -8px 16px rgba(255, 255, 255, 0.9),
+          inset 1px 1px 2px rgba(255, 255, 255, 0.5),
+          inset -1px -1px 2px rgba(0, 0, 0, 0.03)
+        `
+      }}>
+        <div 
+          className={`
+            w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0
+            ${config.color}
+          `}
+          style={{
+            boxShadow: `
+              inset 2px 2px 4px rgba(0, 0, 0, 0.08),
+              inset -2px -2px 4px rgba(255, 255, 255, 0.6)
+            `,
+            backgroundColor: 'rgba(0, 0, 0, 0.03)'
+          }}
+        >
+          <Icon size={22} strokeWidth={2.5} />
         </div>
         
-        <p className="relative flex-1 text-sm font-medium text-slate-700 dark:text-slate-200 leading-snug">
-          {toast.message}
-        </p>
+        <div className="flex-1 min-w-0">
+          <h4 className="font-semibold text-slate-700 text-sm">
+            {config.label}
+          </h4>
+          <p className="text-sm text-slate-500 leading-snug mt-0.5 truncate">
+            {toast.message}
+          </p>
+        </div>
         
         <button 
           onClick={onClose}
-          className="relative flex-shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-black/5 dark:hover:bg-white/10 dark:hover:text-slate-300 transition-colors opacity-0 group-hover:opacity-100"
+          className="flex-shrink-0 p-2 rounded-lg text-slate-300 hover:text-slate-500 transition-colors"
         >
-          <X size={14} />
+          <X size={18} />
+        </button>
+      </div>
+
+      {/* 暗色模式 - 现代风格 */}
+      <div className="
+        hidden dark:flex items-center gap-4 px-5 py-4 rounded-2xl
+        bg-slate-800/90 backdrop-blur-xl
+        border border-white/5
+        transition-all duration-300
+      " style={{
+        boxShadow: `
+          0 4px 24px rgba(0, 0, 0, 0.4),
+          0 0 0 1px rgba(255, 255, 255, 0.05),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05)
+        `
+      }}>
+        <div className={`
+          w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0
+          bg-slate-700/50
+          ${config.color}
+        `}>
+          <Icon size={22} strokeWidth={2.5} />
+        </div>
+        
+        <div className="flex-1 min-w-0">
+          <h4 className="font-semibold text-slate-200 text-sm">
+            {config.label}
+          </h4>
+          <p className="text-sm text-slate-400 leading-snug mt-0.5 truncate">
+            {toast.message}
+          </p>
+        </div>
+        
+        <button 
+          onClick={onClose}
+          className="flex-shrink-0 p-2 rounded-lg text-slate-500 hover:text-slate-300 transition-colors"
+        >
+          <X size={18} />
         </button>
       </div>
     </motion.div>

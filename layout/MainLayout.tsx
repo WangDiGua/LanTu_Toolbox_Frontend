@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Breadcrumb } from '../components/Breadcrumb';
-import { Search, Bell, LogOut, User, Settings, LayoutDashboard, Database, Users, Shield, FileText, List, Lock, Book, Wrench, Eraser, X, Check } from 'lucide-react';
+import { Search, Bell, LogOut, User, Settings, LayoutDashboard, Database, Users, Shield, FileText, List, Lock, Book, Wrench, Eraser, X, Check, CheckCheck, Trash2, BellOff, Sparkles } from 'lucide-react';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -297,40 +297,95 @@ export const MainLayout: React.FC = () => {
                             transition={{ duration: 0.15 }}
                             className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-100 ring-1 ring-black ring-opacity-5 z-50 overflow-hidden dark:bg-slate-800 dark:border-slate-700"
                         >
-                            <div className="px-4 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800 dark:border-slate-700">
-                                <h3 className="font-semibold text-sm text-slate-800 dark:text-white">系统通知</h3>
-                                <div className="flex gap-2">
-                                    <button onClick={handleMarkAllRead} className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400" title="全部已读">
-                                        <Check size={14} />
+                            <div className="px-4 py-3 border-b border-slate-100 flex justify-between items-center bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-800 dark:border-slate-700">
+                                <div className="flex items-center gap-2">
+                                    <Bell size={16} className="text-blue-500" />
+                                    <h3 className="font-semibold text-sm text-slate-800 dark:text-white">消息通知</h3>
+                                    {state.notifications.filter(n => !n.read).length > 0 && (
+                                        <span className="px-1.5 py-0.5 text-[10px] font-bold bg-red-500 text-white rounded-full min-w-[18px] text-center">
+                                            {state.notifications.filter(n => !n.read).length}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="flex gap-1">
+                                    <button 
+                                        onClick={handleMarkAllRead} 
+                                        className="p-1.5 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors dark:hover:bg-blue-900/20" 
+                                        title="全部已读"
+                                    >
+                                        <CheckCheck size={14} />
                                     </button>
-                                    <button onClick={() => setShowClearConfirm(true)} className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" title="清空">
-                                        <X size={14} />
+                                    <button 
+                                        onClick={() => setShowClearConfirm(true)} 
+                                        className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors dark:hover:bg-red-900/20" 
+                                        title="清空通知"
+                                    >
+                                        <Trash2 size={14} />
                                     </button>
                                 </div>
                             </div>
                             <div className="max-h-80 overflow-y-auto custom-scrollbar">
                                 {state.notifications.length === 0 ? (
-                                    <div className="p-8 text-center text-slate-400 text-sm">暂无新通知</div>
+                                    <div className="p-8 text-center">
+                                        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-slate-100 flex items-center justify-center dark:bg-slate-700">
+                                            <BellOff size={20} className="text-slate-400" />
+                                        </div>
+                                        <p className="text-slate-400 text-sm">暂无通知</p>
+                                    </div>
                                 ) : (
-                                    state.notifications.map((note) => (
-                                        <div 
-                                            key={note.id} 
+                                    state.notifications.map((note, index) => (
+                                        <motion.div 
+                                            key={note.id}
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: index * 0.05 }}
                                             onClick={() => handleNotificationClick(note)}
                                             className={cn(
-                                                "px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors last:border-0 relative cursor-pointer dark:border-slate-700 dark:hover:bg-slate-700", 
-                                                !note.read && "bg-blue-50/30 dark:bg-blue-900/10"
+                                                "px-4 py-3 border-b border-slate-50 hover:bg-slate-50 last:border-0 cursor-pointer relative group transition-all dark:border-slate-700 dark:hover:bg-slate-700/50", 
+                                                !note.read && "bg-gradient-to-r from-blue-50/80 to-transparent dark:from-blue-900/20 dark:to-transparent"
                                             )}
                                         >
-                                            {!note.read && <div className="absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-blue-500 rounded-full"></div>}
-                                            <div className="flex justify-between items-start mb-1">
-                                                <span className="font-medium text-sm text-slate-800 dark:text-slate-200 pl-4">{note.title}</span>
-                                                <span className="text-[10px] text-slate-400">{note.time}</span>
+                                            <div className="flex gap-3">
+                                                <div className={cn(
+                                                    "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
+                                                    note.read 
+                                                        ? "bg-slate-100 dark:bg-slate-700" 
+                                                        : "bg-blue-100 dark:bg-blue-900/50"
+                                                )}>
+                                                    {!note.read ? (
+                                                        <Sparkles size={14} className="text-blue-500" />
+                                                    ) : (
+                                                        <Bell size={14} className="text-slate-400" />
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex justify-between items-start gap-2">
+                                                        <span className={cn(
+                                                            "font-medium text-sm truncate",
+                                                            note.read ? "text-slate-600 dark:text-slate-300" : "text-slate-800 dark:text-white"
+                                                        )}>{note.title}</span>
+                                                        <span className="text-[10px] text-slate-400 flex-shrink-0">{note.time}</span>
+                                                    </div>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{note.message}</p>
+                                                </div>
                                             </div>
-                                            <p className="text-xs text-slate-500 pl-4 leading-relaxed dark:text-slate-400">{note.message}</p>
-                                        </div>
+                                            {!note.read && (
+                                                <div className="absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                            )}
+                                        </motion.div>
                                     ))
                                 )}
                             </div>
+                            {state.notifications.length > 0 && (
+                                <div className="px-4 py-2 border-t border-slate-100 bg-slate-50/50 dark:border-slate-700 dark:bg-slate-800/50">
+                                    <button 
+                                        onClick={() => setShowNotifications(false)}
+                                        className="w-full text-center text-xs text-slate-500 hover:text-blue-500 transition-colors"
+                                    >
+                                        关闭
+                                    </button>
+                                </div>
+                            )}
                         </motion.div>
                     )}
                  </AnimatePresence>

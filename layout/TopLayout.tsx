@@ -492,38 +492,97 @@ export const TopLayout: React.FC = () => {
                   initial={{ opacity: 0, y: 8, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                  className="absolute right-0 mt-1 w-72 bg-white rounded-lg shadow-xl border border-slate-100 z-50 overflow-hidden dark:bg-slate-800 dark:border-slate-700"
+                  className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-slate-100 z-50 overflow-hidden dark:bg-slate-800 dark:border-slate-700"
                 >
-                  <div className="px-3 py-2 border-b border-slate-100 flex justify-between items-center dark:border-slate-700">
-                    <h3 className="font-semibold text-sm text-slate-800 dark:text-white">通知</h3>
+                  <div className="px-4 py-3 border-b border-slate-100 flex justify-between items-center bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-800 dark:border-slate-700">
+                    <div className="flex items-center gap-2">
+                      <Icons.Bell size={16} className="text-blue-500" />
+                      <h3 className="font-semibold text-sm text-slate-800 dark:text-white">消息通知</h3>
+                      {state.notifications.filter(n => !n.read).length > 0 && (
+                        <span className="px-1.5 py-0.5 text-[10px] font-bold bg-red-500 text-white rounded-full min-w-[18px] text-center">
+                          {state.notifications.filter(n => !n.read).length}
+                        </span>
+                      )}
+                    </div>
                     <div className="flex gap-1">
-                      <button onClick={handleMarkAllRead} className="text-xs text-blue-600 dark:text-blue-400" title="全部已读"><Icons.Check size={12} /></button>
-                      <button onClick={() => setShowClearConfirm(true)} className="text-xs text-slate-400" title="清空通知"><Icons.X size={12} /></button>
+                      <button 
+                        onClick={handleMarkAllRead} 
+                        className="p-1.5 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors dark:hover:bg-blue-900/20" 
+                        title="全部已读"
+                      >
+                        <Icons.CheckCheck size={14} />
+                      </button>
+                      <button 
+                        onClick={() => setShowClearConfirm(true)} 
+                        className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors dark:hover:bg-red-900/20" 
+                        title="清空通知"
+                      >
+                        <Icons.Trash2 size={14} />
+                      </button>
                     </div>
                   </div>
-                  <div className="max-h-60 overflow-y-auto">
+                  <div className="max-h-72 overflow-y-auto custom-scrollbar">
                     {state.notifications.length === 0 ? (
-                      <div className="p-6 text-center text-slate-400 text-sm">暂无通知</div>
+                      <div className="p-8 text-center">
+                        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-slate-100 flex items-center justify-center dark:bg-slate-700">
+                          <Icons.BellOff size={20} className="text-slate-400" />
+                        </div>
+                        <p className="text-slate-400 text-sm">暂无通知</p>
+                      </div>
                     ) : (
-                      state.notifications.map((note) => (
-                        <div 
-                          key={note.id} 
+                      state.notifications.map((note, index) => (
+                        <motion.div 
+                          key={note.id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
                           onClick={() => handleNotificationClick(note)}
                           className={cn(
-                            "px-3 py-2 border-b border-slate-50 hover:bg-slate-50 last:border-0 cursor-pointer relative dark:border-slate-700 dark:hover:bg-slate-700", 
-                            !note.read && "bg-blue-50/30 dark:bg-blue-900/10"
+                            "px-4 py-3 border-b border-slate-50 hover:bg-slate-50 last:border-0 cursor-pointer relative group transition-all dark:border-slate-700 dark:hover:bg-slate-700/50", 
+                            !note.read && "bg-gradient-to-r from-blue-50/80 to-transparent dark:from-blue-900/20 dark:to-transparent"
                           )}
                         >
-                          {!note.read && <div className="absolute left-1.5 top-1/2 -translate-y-1/2 w-2 h-2 bg-blue-500 rounded-full"></div>}
-                          <div className={cn("flex justify-between items-start", !note.read && "pl-4")}>
-                            <span className="font-medium text-sm text-slate-800 dark:text-slate-200">{note.title}</span>
-                            <span className="text-[10px] text-slate-400">{note.time}</span>
+                          <div className="flex gap-3">
+                            <div className={cn(
+                              "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
+                              note.read 
+                                ? "bg-slate-100 dark:bg-slate-700" 
+                                : "bg-blue-100 dark:bg-blue-900/50"
+                            )}>
+                              {!note.read ? (
+                                <Icons.Sparkles size={14} className="text-blue-500" />
+                              ) : (
+                                <Icons.Bell size={14} className="text-slate-400" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex justify-between items-start gap-2">
+                                <span className={cn(
+                                  "font-medium text-sm truncate",
+                                  note.read ? "text-slate-600 dark:text-slate-300" : "text-slate-800 dark:text-white"
+                                )}>{note.title}</span>
+                                <span className="text-[10px] text-slate-400 flex-shrink-0">{note.time}</span>
+                              </div>
+                              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{note.message}</p>
+                            </div>
                           </div>
-                          <p className={cn("text-xs text-slate-500 dark:text-slate-400 mt-0.5", !note.read && "pl-4")}>{note.message}</p>
-                        </div>
+                          {!note.read && (
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                          )}
+                        </motion.div>
                       ))
                     )}
                   </div>
+                  {state.notifications.length > 0 && (
+                    <div className="px-4 py-2 border-t border-slate-100 bg-slate-50/50 dark:border-slate-700 dark:bg-slate-800/50">
+                      <button 
+                        onClick={() => setShowNotifications(false)}
+                        className="w-full text-center text-xs text-slate-500 hover:text-blue-500 transition-colors"
+                      >
+                        关闭
+                      </button>
+                    </div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

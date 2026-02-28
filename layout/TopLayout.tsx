@@ -510,10 +510,11 @@ export const TopLayout: React.FC = () => {
                           key={note.id} 
                           onClick={() => handleNotificationClick(note)}
                           className={cn(
-                            "px-3 py-2 border-b border-slate-50 hover:bg-slate-50 last:border-0 cursor-pointer dark:border-slate-700 dark:hover:bg-slate-700", 
+                            "px-3 py-2 border-b border-slate-50 hover:bg-slate-50 last:border-0 cursor-pointer relative dark:border-slate-700 dark:hover:bg-slate-700", 
                             !note.read && "bg-blue-50/30 dark:bg-blue-900/10"
                           )}
                         >
+                          {!note.read && <div className="absolute left-2 top-4 w-1.5 h-1.5 bg-blue-500 rounded-full"></div>}
                           <div className="flex justify-between items-start">
                             <span className="font-medium text-sm text-slate-800 dark:text-slate-200">{note.title}</span>
                             <span className="text-[10px] text-slate-400">{note.time}</span>

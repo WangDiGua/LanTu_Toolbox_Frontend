@@ -261,7 +261,7 @@ export const VectorSearch: React.FC = () => {
                                   type="number" 
                                   value={topK}
                                   onChange={(e) => setTopK(Math.max(1, Math.min(100, parseInt(e.target.value) || 10)))}
-                                  className="w-20 px-2 py-1 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                                  className="w-20 px-2 py-1 text-sm border border-slate-200 rounded-md focus:outline-none focus:border-blue-500 transition-all dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:focus:border-blue-400"
                                   min={1}
                                   max={100}
                               />

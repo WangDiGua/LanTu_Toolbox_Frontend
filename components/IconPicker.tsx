@@ -478,7 +478,7 @@ export const IconPicker: React.FC<IconPickerProps> = ({ value, onChange, label }
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between px-3 py-2 border border-slate-300 rounded-lg bg-white hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-800 dark:border-slate-700 dark:hover:border-slate-600"
+                className="w-full flex items-center justify-between px-3 py-2 border border-slate-300 rounded-lg bg-white hover:border-slate-400 focus:outline-none focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)] transition-all dark:bg-slate-800 dark:border-slate-700 dark:hover:border-slate-600 dark:focus:border-blue-400"
             >
                 <div className="flex items-center gap-2">
                     {value ? (
@@ -508,7 +508,7 @@ export const IconPicker: React.FC<IconPickerProps> = ({ value, onChange, label }
                                 placeholder="搜索图标..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="w-full pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                                className="w-full pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-md focus:outline-none focus:border-blue-500 transition-all dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:focus:border-blue-400"
                             />
                         </div>
                         <div className="flex flex-wrap gap-1">

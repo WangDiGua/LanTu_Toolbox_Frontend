@@ -425,7 +425,7 @@ export const UserManagement: React.FC = () => {
                             {...register('bio')}
                             placeholder="选填，最多100字"
                             rows={2}
-                            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none dark:bg-slate-800 dark:border-slate-600 dark:text-white"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)] resize-none transition-all dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:focus:border-blue-400"
                         />
                         {errors.bio?.message && (
                             <p className="text-xs text-red-500 mt-1">{errors.bio.message}</p>

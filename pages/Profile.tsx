@@ -267,7 +267,7 @@ export const Profile: React.FC = () => {
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1 dark:text-slate-300">个人简介</label>
                             <textarea 
-                                className="block w-full rounded-md border border-slate-300 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[100px] text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-white"
+                                className="block w-full rounded-md border border-slate-300 bg-white py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)] min-h-[100px] text-slate-700 transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-white dark:focus:border-blue-400"
                                 value={formData.bio}
                                 onChange={(e) => handleInputChange('bio', e.target.value)}
                                 placeholder="暂无简介"

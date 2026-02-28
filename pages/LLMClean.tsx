@@ -50,7 +50,7 @@ export const LLMClean: React.FC = () => {
                 <textarea 
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    className="flex-1 w-full p-4 rounded-xl border border-slate-200 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-mono text-sm leading-relaxed dark:bg-slate-900 dark:border-slate-800 dark:text-white" 
+                    className="flex-1 w-full p-4 rounded-xl border border-slate-200 resize-none focus:outline-none focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)] bg-white font-mono text-sm leading-relaxed transition-all dark:bg-slate-900 dark:border-slate-800 dark:text-white dark:focus:border-blue-400" 
                     placeholder="在此粘贴原始 LLM 输出..." 
                 />
             </div>

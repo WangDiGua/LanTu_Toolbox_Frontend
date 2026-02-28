@@ -80,7 +80,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <ToastContext.Provider value={{ showToast, success, error, info, warning }}>
       {children}
-      <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-4 pointer-events-none items-center w-full max-w-md px-4">
+      <div className="fixed top-8 left-0 right-0 z-[9999] flex flex-col gap-4 pointer-events-none items-center w-full px-4">
         <AnimatePresence>
           {toasts.map((toast) => (
             <ToastItem key={toast.id} toast={toast} onClose={() => removeToast(toast.id)} />
@@ -97,16 +97,16 @@ const ToastItem: React.FC<{ toast: Toast; onClose: () => void }> = ({ toast, onC
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: -30, scale: 0.9, x: '-50%' }}
-      animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
-      exit={{ opacity: 0, y: -20, scale: 0.9, x: '-50%' }}
+      initial={{ opacity: 0, y: -30, scale: 0.9 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -20, scale: 0.9 }}
       transition={{ 
         type: 'spring', 
         stiffness: 400, 
         damping: 25,
         mass: 0.8
       }}
-      className="pointer-events-auto relative w-full"
+      className="pointer-events-auto relative w-full max-w-md"
     >
       {/* 明亮模式 - 拟物化风格 */}
       <div className="

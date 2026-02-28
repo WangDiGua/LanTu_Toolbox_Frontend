@@ -514,12 +514,12 @@ export const TopLayout: React.FC = () => {
                             !note.read && "bg-blue-50/30 dark:bg-blue-900/10"
                           )}
                         >
-                          {!note.read && <div className="absolute left-2 top-4 w-1.5 h-1.5 bg-blue-500 rounded-full"></div>}
-                          <div className="flex justify-between items-start">
+                          {!note.read && <div className="absolute left-1.5 top-1/2 -translate-y-1/2 w-2 h-2 bg-blue-500 rounded-full"></div>}
+                          <div className={cn("flex justify-between items-start", !note.read && "pl-4")}>
                             <span className="font-medium text-sm text-slate-800 dark:text-slate-200">{note.title}</span>
                             <span className="text-[10px] text-slate-400">{note.time}</span>
                           </div>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{note.message}</p>
+                          <p className={cn("text-xs text-slate-500 dark:text-slate-400 mt-0.5", !note.read && "pl-4")}>{note.message}</p>
                         </div>
                       ))
                     )}

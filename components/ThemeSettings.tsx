@@ -188,7 +188,7 @@ export const ThemeSettings: React.FC<ThemeSettingsProps> = ({ isOpen, onClose })
                                   toastSuccess(`主题色已更改为${color.name}`);
                                 }}
                                 className={cn(
-                                    "w-8 h-8 rounded-full flex items-center justify-center transition-transform hover:scale-110 shadow-sm",
+                                    "w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-105 shadow-sm relative z-10",
                                     primaryColor === color.value ? "ring-2 ring-offset-2 ring-slate-400 dark:ring-slate-600" : ""
                                 )}
                                 style={{ backgroundColor: color.value }}
